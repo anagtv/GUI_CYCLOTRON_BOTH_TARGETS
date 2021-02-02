@@ -20,28 +20,9 @@ from datetime import timedelta
 import matplotlib.dates as md
 from matplotlib.widgets import CheckButtons
 va = 0
-
+import columns_names
 COLORS = ['#1E90FF','#FF4500','#32CD32',"#6A5ACD","#20B2AA","#00008B","#A52A2A","#228B22"]
-COLUMNS_SOURCE = ["FILE","DATE","TARGET","FOIL","CURRENT_MAX", "CURRENT_MIN","CURRENT_AVE","CURRENT_STD","VOLTAGE_MAX","VOLTAGE_MIN","VOLTAGE_AVE","VOLTAGE_STD","HFLOW",
-    "RATIO_MAX", "RATIO_MIN","RATIO_AVE","RATIO_STD","SOURCE_PERFORMANCE"]
-COLUMNS_VACUUM = ["FILE","DATE","TARGET","FOIL","PRESSURE_MAX","PRESSURE_MIN","PRESSURE_AVE","PRESSURE_STD"]
-COLUMNS_MAGNET = ["FILE","DATE","TARGET","FOIL","CURRENT_MAX","CURRENT_MIN","CURRENT_AVE","CURRENT_STD"]
-COLUMNS_RF =  ["FILE","DATE","TARGET","FOIL","DEE1_VOLTAGE_MAX","DEE1_VOLTAGE_MIN","DEE1_VOLTAGE_AVE","DEE1_VOLTAGE_STD","DEE2_VOLTAGE_MAX","DEE2_VOLTAGE_MIN","DEE2_VOLTAGE_AVE","DEE2_VOLTAGE_STD",
-    "FORWARD_POWER_MAX","FORWARD_POWER_MIN","FORWARD_POWER_AVE","FORWARD_POWER_STD","REFLECTED_POWER_MAX","REFLECTED_POWER_MIN","REFLECTED_POWER_AVE","REFLECTED_POWER_STD",
-    "PHASE_LOAD_MAX","PHASE_LOAD_MIN","PHASE_LOAD_AVE","PHASE_LOAD_STD",
-    "FLAP1_MAX","FLAP1_MIN","FLAP1_AVE","FLAP1_STD","FLAP2_MAX","FLAP2_MIN","FLAP2_AVE","FLAP2_STD",]
-COLUMNS_BEAM = ["FILE","DATE","TARGET","FOIL","COLL_CURRENT_L_MAX","COLL_CURRENT_L_MIN","COLL_CURRENT_L_AVE","COLL_CURRENT_L_STD","COLL_CURRENT_R_MAX","COLL_CURRENT_R_MIN","COLL_CURRENT_R_AVE","COLL_CURRENT_R_STD"
-    ,"RELATIVE_COLL_CURRENT_L_MAX","RELATIVE_COLL_CURRENT_L_MIN","RELATIVE_COLL_CURRENT_L_AVE","RELATIVE_COLL_CURRENT_L_STD",
-    "RELATIVE_COLL_CURRENT_R_MAX","RELATIVE_COLL_CURRENT_R_MIN","RELATIVE_COLL_CURRENT_R_AVE","RELATIVE_COLL_CURRENT_R_STD",
-    "TARGET_CURRENT_MAX","TARGET_CURRENT_MIN","TARGET_CURRENT_AVE","TARGET_CURRENT_STD","FOIL_CURRENT_MAX","FOIL_CURRENT_MIN","FOIL_CURRENT_AVE","FOIL_CURRENT_STD",
-    "RELATIVE_TARGET_CURRENT_MAX","RELATIVE_TARGET_CURRENT_MIN","RELATIVE_TARGET_CURRENT_AVE","RELATIVE_TARGET_CURRENT_STD",
-    "EXTRACTION_LOSSES_MAX","EXTRACTION_LOSSES_MIN","EXTRACTION_LOSSES_AVE","EXTRACTION_LOSSES_STD",
-    "RELATIVE_COLL_CURRENT_MAX","RELATIVE_COLL_CURRENT_MIN","RELATIVE_COLL_CURRENT_AVE","RELATIVE_COLL_CURRENT_STD"]
-COLUMNS_EXTRACTION = ["FILE","DATE","TARGET","FOIL","CAROUSEL_POSITION_MAX","CAROUSEL_POSITION_MIN","CAROUSEL_POSITION_AVE","CAROUSEL_POSITION_STD"
-    ,"BALANCE_POSITION_MAX","BALANCE_POSITION_MIN","BALANCE_POSITION_AVE","BALANCE_POSITION_STD"]
-COLUMNS_TRANSMISSION = ["FILE","DATE","TARGET","TRANSMISSION","FOIL"]
-COLUMNS_FILLING = ["FILE","TIME_LIST","DATE","TARGET","RELATIVE_VOLUME"]
-COLUMNS_FLUCTUATIONS = ["FILE","TIME_LIST","DATE","TARGET","PRESSURE_FLUCTUATIONS"]
+
 
 def _parse_args():
     parser = OptionParser()
@@ -142,7 +123,7 @@ def get_filling_volume(excel_data_df,target_number,va,file,date_stamp,df_filling
         relative_change_all = 0
         time_list = 0
     filling_list = [[np.float(file),time_list,date_stamp,target_number,relative_change_all]]
-    df_filling_volume_i = pd.DataFrame(filling_list,columns=COLUMNS_FILLING)
+    df_filling_volume_i = pd.DataFrame(filling_list,columns=columns_names.COLUMNS_FILLING)
     df_filling_volume = df_filling_volume.append(df_filling_volume_i,ignore_index=True)
     return df_filling_volume 
 
@@ -163,7 +144,7 @@ def get_pressure_fluctuations(data_df,target_number,va,file,date_stamp,df_pressu
          initial_pressure_fluctuations = 0
          time_list = 0
     pressure_fluctuations = [[np.float(file),time_list,date_stamp,target_number,initial_pressure_fluctuations]]
-    df_pressure_fluctuations_i = pd.DataFrame(pressure_fluctuations,columns=COLUMNS_FLUCTUATIONS)
+    df_pressure_fluctuations_i = pd.DataFrame(pressure_fluctuations,columns=columns_names.COLUMNS_FLUCTUATIONS)
     df_pressure_fluctuations = df_pressure_fluctuations.append(df_pressure_fluctuations_i,ignore_index=True)
     return df_pressure_fluctuations 
 
@@ -184,7 +165,7 @@ def get_transmission(df_isochronism,probe_current,df_subsystem_source,file,targe
     foil_number = np.average(df_subsystem_source.Foil_No)
     transmission_list = [[np.float(file),date_stamp,target_number,transmission,foil_number]] 
     print (transmission_list)
-    df_transmission_i = pd.DataFrame((transmission_list),columns=COLUMNS_TRANSMISSION)      
+    df_transmission_i = pd.DataFrame((transmission_list),columns=columns_names.COLUMNS_TRANSMISSION)      
     df_transmission = df_transmission.append(df_transmission_i,ignore_index=True)
     return df_transmission
  
@@ -570,7 +551,7 @@ def get_summary_ion_source(df_subsystems_source,source_performance,file,target_n
     float(max_gas_flow),
     float(max_ratio_current),float(min_ratio_current),float(ave_ratio_current),float(std_ratio_current),float(source_performance)
     ]]
-    df_source_i = pd.DataFrame(df_source_values,columns=COLUMNS_SOURCE)
+    df_source_i = pd.DataFrame(df_source_values,columns=columns_names.COLUMNS_SOURCE)
     df_source = df_source.append(df_source_i,ignore_index=True)
     return df_source
 
@@ -579,7 +560,7 @@ def get_summary_vacuum(df_subsystems_vacuum,file,target_number,date_stamp,df_vac
     foil_number = np.average((df_subsystems_vacuum.Foil_No))
     ave_vacuum,std_vacuum,max_vacuum,min_vacuum = get_statistic_values(vacuum_level)
     vacuum_values = [[file,date_stamp,target_number,foil_number,float(max_vacuum)*1e5,float(min_vacuum)*1e5,float(ave_vacuum)*1e5,float(std_vacuum)*1e5]]
-    df_vacuum_i = pd.DataFrame((vacuum_values),columns=COLUMNS_VACUUM)
+    df_vacuum_i = pd.DataFrame((vacuum_values),columns=columns_names.COLUMNS_VACUUM)
     df_vacuum = df_vacuum.append(df_vacuum_i,ignore_index=True)
     return df_vacuum
 
@@ -588,7 +569,7 @@ def get_summary_magnet(df_subsystems_magnet,file,target_number,date_stamp,df_mag
     foil_number = np.average((df_subsystems_magnet.Foil_No))
     ave_magnet_current,std_magnet_current,max_magnet_current,min_magnet_current = get_statistic_values(magnet_current)
     magnet_values = [[file,date_stamp,target_number,foil_number,float(max_magnet_current),float(min_magnet_current),float(ave_magnet_current),float(std_magnet_current)]]
-    df_magnet_i = pd.DataFrame((magnet_values),columns=COLUMNS_MAGNET)
+    df_magnet_i = pd.DataFrame((magnet_values),columns=columns_names.COLUMNS_MAGNET)
     df_magnet = df_magnet.append(df_magnet_i,ignore_index=True)
     return df_magnet
 
@@ -611,7 +592,7 @@ def get_summary_rf(df_subsystems_rf,file,target_number,date_stamp,df_rf):
     rf_values = [[file,date_stamp,target_number,foil_number,max_dee1_voltage,min_dee1_voltage,ave_dee1_voltage,std_dee1_voltage,max_dee2_voltage,min_dee2_voltage,ave_dee2_voltage,std_dee2_voltage,
     max_forwarded_power,min_forwarded_power,ave_forwarded_power,std_forwarded_power,max_reflected_power,min_reflected_power,ave_reflected_power,std_reflected_power,max_phase_load,min_phase_load,ave_phase_load,std_phase_load,max_flap1_pos,min_flap1_pos,ave_flap1_pos,std_flap1_pos,
     max_flap2_pos,min_flap2_pos,ave_flap2_pos,std_flap2_pos]]
-    df_rf_i = pd.DataFrame((rf_values),columns=COLUMNS_RF)      
+    df_rf_i = pd.DataFrame((rf_values),columns=columns_names.COLUMNS_RF)      
     df_rf = df_rf.append(df_rf_i,ignore_index=True)
     return df_rf
 
@@ -623,7 +604,7 @@ def get_summary_extraction(df_subsystems_extraction,file,target_number,date_stam
     ave_carousel_position,std_carousel_position, max_carousel_position, min_carousel_position = get_statistic_values(carousel_position)
     ave_balance_position,std_balance_position, max_balance_position, min_balance_position = get_statistic_values(balance_position)
     extraction_values = [[file,date_stamp,target_number,foil_number,max_carousel_position,min_carousel_position,ave_carousel_position,std_carousel_position,max_balance_position,min_balance_position,ave_balance_position,std_balance_position]]
-    df_extraction_i = pd.DataFrame((extraction_values),columns=COLUMNS_EXTRACTION)      
+    df_extraction_i = pd.DataFrame((extraction_values),columns=columns_names.COLUMNS_EXTRACTION)      
     df_extraction = df_extraction.append(df_extraction_i,ignore_index=True)
     return df_extraction
 
@@ -657,143 +638,13 @@ def get_summary_beam(df_subsystems_beam,file,target_number,date_stamp,df_beam):
     max_target_rel,min_target_rel,ave_target_rel,std_target_rel,
     max_extraction_losses,min_extraction_losses,ave_extraction_losses,std_extraction_losses, 
     max_collimator_total_rel,min_collimator_total_rel, ave_collimator_total_rel, std_collimator_total_rel,]]
-    df_beam_i = pd.DataFrame((beam_values),columns=COLUMNS_BEAM )      
+    df_beam_i = pd.DataFrame((beam_values),columns=columns_names.COLUMNS_BEAM )      
     df_beam = df_beam.append(df_beam_i,ignore_index=True)
     return df_beam
 
 
 def main(input_path,output_path,target_current):
-    df_source = pd.DataFrame(columns=COLUMNS_SOURCE)
-    df_vacuum = pd.DataFrame(columns=COLUMNS_VACUUM)
-    df_magnet = pd.DataFrame(columns=COLUMNS_MAGNET)
-    df_beam = pd.DataFrame(columns=COLUMNS_BEAM )
-    df_rf = pd.DataFrame(columns=COLUMNS_RF)
-    df_extraction = pd.DataFrame(columns=COLUMNS_EXTRACTION)
-    df_transmission = pd.DataFrame(columns=COLUMNS_TRANSMISSION)
-    df_filling_volume = pd.DataFrame(columns=COLUMNS_FILLING)
-    df_pressure_fluctuations = pd.DataFrame(columns=COLUMNS_FLUCTUATIONS)
-    input_path_names = input_path[0]
-    print ("HEREEEEEE")
-    print (input_path)
-    #print (input_path.pop(0))
-    #input_path.pop(0) 
-    file_number = []
-    input_path_names = input_path[0]
-    input_path.pop(0) 
-    input_path_filtered = []
-    file_path = []
-    for file in (input_path):
-        file_path.append(file)
-        input_path_filtered.append(os.path.getsize(os.path.join(input_path_names, file)))
-    input_path_filtered_array = np.array(input_path_filtered)
-    file_path_array = np.array(file_path)
-    print (input_path_filtered_array)
-    file_path_array_max = file_path_array[input_path_filtered_array > 0.1*max(input_path_filtered_array)]
-    #file_path_no_array = file_path_array[input_path_filtered_array < 0.4*max(input_path_filtered_array)]
-    possible_normal = []
-    possible_pre_irradiation = []
-    for file in file_path_array_max:
-        file_path = os.path.join(input_path_names, file)
-        #print (file)
-        #file_number.append(float(file[:-4]))
-        #real_values,target_number,date_stamp = get_data_tuple(file_path)
-        [target_number,date_stamp,name,file_number] = get_headers(file_path)
-        real_values = get_irradiation_information(file_path)
-        # Get the dataframe from logfile 
-        #date_stamp_all.append((date_stamp))
-        excel_data_df = get_data(real_values)
-        target_current = excel_data_df.Target_I.astype(float)
-        pre_irradiation_len = (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 50.0].astype(float))) + (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 25.0].astype(float))) + (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 0.0].astype(float)))
-        pre_irradiation_len_relative = (pre_irradiation_len/len(excel_data_df.Target_I.astype(float)))
-        if (pre_irradiation_len_relative) > 0.3:
-            possible_pre_irradiation.append(file)
-        else:
-            possible_normal.append(file)
-    reasons_small_file = []
-    for file in (possible_normal):
-        file_path = os.path.join(input_path_names, file)
-        print (file)
-        [target_number,date_stamp,name,file_number] = get_headers(file_path)
-        real_values = get_irradiation_information(file_path)
-        # Get the dataframe from logfile 
-        #date_stamp_all.append((date_stamp))
-        excel_data_df = get_data(real_values)
-        [target_current,current] = get_target_parameters(excel_data_df)
-        max_source_current = get_source_parameters_limit(excel_data_df)
-        time = get_time(excel_data_df,current)
-        try:
-           foil_number = get_foil_number(excel_data_df,current)
-        except:
-           foil_number = get_target_pressure(excel_data_df,current)
-        df_subsystem_source = get_subsystems_dataframe_source(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_subsystem_vacuum = get_subsystems_dataframe_vacuum(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_subsystem_magnet = get_subsystems_dataframe_magnet(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_subsystem_rf = get_subsystems_dataframe_rf(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_subsystem_rf_sparks = get_subsystems_dataframe_rf_sparks(excel_data_df,max_source_current,target_number,target_current,time,foil_number)
-        df_subsystem_extraction = get_subsystems_dataframe_extraction(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_subsystem_beam = get_subsystems_dataframe_beam(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_subsystem_pressure = get_subsystems_dataframe_pressure(excel_data_df,current,target_number,target_current,time,foil_number)
-        df_isochronism = get_isochronism(excel_data_df)
-        [probe_current,ion_source_current,source_performance] = get_ion_source_performance(excel_data_df)
-        print ("HERREEEE")
-        print (source_performance)
-        df_source = get_summary_ion_source(df_subsystem_source,source_performance,str(file[:-4]),target_number[1],date_stamp,df_source)
-        df_vacuum = get_summary_vacuum(df_subsystem_vacuum,str(file[:-4]),target_number[1],date_stamp,df_vacuum)
-        df_magnet = get_summary_magnet(df_subsystem_magnet,str(file[:-4]),target_number[1],date_stamp,df_magnet)
-        df_rf = get_summary_rf(df_subsystem_rf,str(file[:-4]),target_number[1],date_stamp,df_rf)
-        df_extraction = get_summary_extraction(df_subsystem_extraction,str(file[:-4]),target_number[1],date_stamp,df_extraction)
-        df_beam = get_summary_beam(df_subsystem_beam,str(file[:-4]),target_number[1],date_stamp,df_beam)
-        df_transmission = get_transmission(df_isochronism,probe_current,df_subsystem_source,str(file[:-4]),target_number[1],date_stamp,df_transmission)
-        df_pressure_fluctuations = get_pressure_fluctuations(excel_data_df,target_number[1],0,str(file[:-4]),date_stamp,df_pressure_fluctuations)
-        df_filling_volume = get_filling_volume(excel_data_df,target_number[1],0,str(file[:-4]),date_stamp,df_filling_volume)
-        # GETTING STADISTIC NUMBERS
-        # summary voltage 
-        
-    df_rf = df_rf.dropna()
-    df_extraction = df_extraction.dropna()
-    df_source = df_source.dropna()
-    df_vacuum = df_vacuum.dropna()
-    df_magnet = df_magnet.dropna()
-    df_beam = df_beam.dropna()
-
-    df_rf = df_rf.sort_values(by=['FILE'])
-    df_extraction = df_extraction.sort_values(by=['FILE'])
-    df_source = df_source.sort_values(by=['FILE'])
-    df_vacuum = df_vacuum.sort_values(by=['FILE'])
-    df_magnet = df_magnet.sort_values(by=['FILE'])
-    df_beam = df_beam.sort_values(by=['FILE'])
-    df_transmission = df_transmission.sort_values(by=['FILE'])
- 
-
-
-    tfs_output_source = os.path.join(output_path,"table_summary_source.out")
-    tfs_output_vacuum = os.path.join(output_path,"table_summary_vacuum.out")
-    tfs_output_magnet = os.path.join(output_path,"table_summary_magnet.out")
-    tfs_output_beam = os.path.join(output_path,"table_summary_beam.out")
-    tfs_output_extraction = os.path.join(output_path,"table_summary_extraction.out")
-    tfs_output_rf = os.path.join(output_path,"table_summary_rf.out")
-    tfs_output_trans = os.path.join(output_path,"table_summary_transmission.out")
-    tfs_output_pressure_fluctuations = os.path.join(output_path,"table_summary_pressure_fluctuations.out")
-    tfs_output_filling_volume = os.path.join(output_path,"table_summary_filling_volume.out")
-
-    tfs.write(tfs_output_source, df_source)
-    tfs.write(tfs_output_vacuum, df_vacuum)
-    tfs.write(tfs_output_magnet, df_magnet)
-    print ("df_beam")
-    print (df_beam)
-    tfs.write(tfs_output_beam, df_beam)
-    tfs.write(tfs_output_extraction, df_extraction)
-    tfs.write(tfs_output_rf, df_rf)
-    tfs.write(tfs_output_trans,df_transmission)
-
-    #tfs.write(tfs_output_extraction_balance,df_extraction_balance_position_all)
-    #print ("NO LONG FILES")
-    #print (file_path_no_array)
-    #print ("POSSIBLE FAILURE")
-    #print (possible_failure)
-    print ("POSSIBLE PRE IRRADIATION")
-    print (possible_pre_irradiation)
-
+    print ("Hola")
 
 if __name__ == "__main__":
     _input_path,_output_path,target_current = _parse_args()

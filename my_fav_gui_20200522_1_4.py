@@ -91,26 +91,64 @@ class window(QMainWindow):
     def __init__(self):
         super(window, self).__init__()
         frameWidget = UpdateFrame(self)
-      
+        self.setWindowTitle("Cyclotron Analysis")
         self.setGeometry(50, 50, 1500, 1000)
         self.setWindowTitle('pyqt5 Tut')
         self.setWindowIcon(QIcon('pic.png'))
+        #
+        self.mainMenu = self.menuBar()
+        self.main_widget = QtWidgets.QWidget()
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidget(self.main_widget)
+        self.scrollArea.setWidgetResizable(True)
+
+        # INIALIZE VARIABLE
+        self.flags()
+        self.initial_df()
+        # STARTING MENUS
+        #
+        self.open_menu()
+        self.open_menu_actions()
+        #
+        self.edit_menu()
+        self.edit_actions()
+        #
+        self.plot_menu()
+        self.plot_actions()
+        #
+        self.plot_menu_source()
+        self.plot_source_actions()
+        #
+        self.remove_menu()
+        #
+        self.adding_open_actions()
+        self.adding_edit_actions()
+        self.adding_plot_actions()
+        self.adding_plot_source()
+        self.remove_menu_action()
+        #
+        self.main_widget.setFocus()
+        self.setCentralWidget(self.main_widget)
+        lay = QtWidgets.QVBoxLayout(self.main_widget)   
+        self.home(lay)
+        self.setMinimumSize(1000, 800)
+
+    def flags(self): 
         self.current_row = 0
         self.current_row_folder = 0
         self.current_row_statistics = 0
         self.current_row_analysis = 0 
         self.row_to_plot = 0
         self.current_row_observables = 0
-        self.current_row_observables_tab3 = 0
-
+        self.current_row_observables_tab3 = 0      
         self.target_1_value = 0
         self.target_4_value = 0
         self.max_min_value = 0        
         self.week_value = 0
         self.day_value = 1
         self.flag_no_gap = 1
-        #
-        
+
+    def initial_df(self):               
         self.df_source = pd.DataFrame(columns=COLUMNS_SOURCE)
         self.df_vacuum = pd.DataFrame(columns=COLUMNS_VACUUM)
         self.df_magnet = pd.DataFrame(columns=COLUMNS_MAGNET)
@@ -120,139 +158,129 @@ class window(QMainWindow):
         self.df_transmission = pd.DataFrame(columns=COLUMNS_TRANSMISSION)
         self.df_filling_volume = pd.DataFrame(columns=COLUMNS_FILLING)
         self.df_pressure_fluctuations = pd.DataFrame(columns=COLUMNS_FLUCTUATIONS)
-        
-        editplotmax = QAction('&Remove Max/Min Values',self)
-        resetplotmax = QAction('&Add Max/Min Values',self)
-        editplottarget1 = QAction('&Remove Target 1',self)
-        editplottarget4 = QAction('&Remove Target 4',self)
-        editplottarget1_add = QAction('&Add Target 1',self)
-        editplottarget4_add = QAction('&Add Target 4',self)
-        editplotweek = QAction('&Add Week/Remove days',self)
-        editplotday = QAction('&Add day/Remove week',self)
-        editplottime = QAction('&Add day gap',self)
-        editplottime_remove = QAction('&Remove day gap',self)
-        editplotmax.triggered.connect(self.flag_max)
-        resetplotmax.triggered.connect(self.flag_max_reset)
-        editplottarget1.triggered.connect(self.flag_target1)
-        editplottarget4.triggered.connect(self.flag_target4)
-        editplottarget1_add.triggered.connect(self.flag_target1_add)
-        editplottarget4_add.triggered.connect(self.flag_target4_add)
-        editplotweek.triggered.connect(self.flag_week)
-        editplotday.triggered.connect(self.flag_day)
-        editplottime.triggered.connect(self.flag_day_gap)
-        editplottime_remove.triggered.connect(self.flag_no_day_gap)
 
-        openPlotI = QAction('&Plot Ion Source', self)
-        openPlotIV = QAction('&Plot Ion Source/Vacuum', self)
-        openPlotM = QAction('&Plot Magnet', self)
-        openPlotRF = QAction('&Plot RF', self)
-        openPlotRFPower = QAction('&Plot RF Power', self)
-        openPlotEx = QAction('&Plot Extraction', self)
-        openPlotCol = QAction('&Plot Collimators',self)
-        openPlotColTarget = QAction('&Plot Target/Collimators',self)
-        loadFileT = QAction ('&Load Trend Folder',self)
-  
-        openPlotI.setShortcut('Ctrl+E')
-        openPlotI.setStatusTip('Plot files')
-        openPlotI.triggered.connect(self.file_plot)
-        openPlotIV.triggered.connect(self.setting_plot_vacuum)
-        openPlotM.triggered.connect(file_plots.file_plot_magnet)
-        openPlotRF.triggered.connect(self.setting_plot_RF)
-        openPlotRFPower.triggered.connect(self.setting_plot_RF_power)
-        openPlotEx.triggered.connect(file_plots.file_plot_extraction)
-        openPlotCol.triggered.connect(file_plots.file_plot_collimation)
-        openPlotColTarget.triggered.connect(file_plots.file_plot_collimation_target)
-        loadFileT.triggered.connect(self.file_output)
+    def open_menu(self):
+        self.openFile = QAction('Open File', self)
+        self.openFolder = QAction('Open Folder', self)
+        self.loadFileT = QAction ('&Load Trend Folder',self)
+        self.openFile.setShortcut('Ctrl+O')
+        self.openFile.setStatusTip('Open File')
 
-        openPlotI_S = QAction('&Plot Collimators/Ion Source', self)
-        openPlotIV_S = QAction('&Plot Vacuum/Magnet vs Ion Source', self)
-        openPlotRF_S = QAction('&Plot RF vs Ion Source', self)
-        openPlotEx_S = QAction('&Plot Extraction vs Ion Source', self)
-        openPlotI.setShortcut('Ctrl+E')
-        openPlotI.setStatusTip('Plot files')
-        openPlotI_S.triggered.connect(file_plots.file_plot_collimators_source)
-        openPlotIV_S.triggered.connect(file_plots.file_plot_vacuum_source)
-        openPlotRF_S.triggered.connect(file_plots.file_plot_rf_source)
-        openPlotEx_S.triggered.connect(file_plots.file_plot_extraction_source)
-
-        openFile = QAction('Open File', self)
-        openFolder = QAction('Open Folder', self)
-        openFile.setShortcut('Ctrl+O')
-        openFile.setStatusTip('Open File')
-        openFile.triggered.connect(self.file_open_message)
-        openFolder.triggered.connect(self.file_folder)
+    def open_menu_actions(self):
+        self.openFile.triggered.connect(self.file_open_message)
+        self.openFolder.triggered.connect(self.file_folder)
+        self.loadFileT.triggered.connect(self.file_output)
         self.statusBar()
 
-        mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu('&File')
-        #fileMenu.addAction(extractAction)
-        fileMenu.addAction(openFile)
-        fileMenu.addAction(openFolder)
-        fileMenu.addAction(loadFileT)
-
-        editorMenu = mainMenu.addMenu('&Plot Individual Files')
-        editorMenu.addAction(openPlotI)
-        editorMenu.addAction(openPlotIV)
-        editorMenu.addAction(openPlotM)
-        editorMenu.addAction(openPlotRF)
-        editorMenu.addAction(openPlotRFPower)
-        editorMenu.addAction(openPlotEx)
-        editorMenu.addAction(openPlotCol)
-        editorMenu.addAction(openPlotColTarget)
-
-        editorMenu_S = mainMenu.addMenu('&Plot Individual Files (Source)')
-        editorMenu_S.addAction(openPlotI_S)
-        editorMenu_S.addAction(openPlotIV_S)
-        editorMenu_S.addAction(openPlotRF_S)
-        editorMenu_S.addAction(openPlotEx_S)
-
-        plotMenu = mainMenu.addMenu('&Edit Trends Plots')
-        plotMenu.addAction(editplottime)
-        plotMenu.addAction(editplottime_remove)
-        plotMenu.addAction(editplotmax)
-        plotMenu.addAction(resetplotmax)
-        plotMenu.addAction(editplottarget1)
-        plotMenu.addAction(editplottarget4)
-        plotMenu.addAction(editplottarget1_add)
-        plotMenu.addAction(editplottarget4_add)
-        plotMenu.addAction(editplotweek)
-        plotMenu.addAction(editplotday)
-        
-        editorRemove = mainMenu.addMenu('&Remove')
-        removeRow = QAction('&Remove selected row', self)
-        removeCol = QAction('&Remove selected column', self)
-        editorRemove.addAction(removeRow)
-        editorRemove.addAction(removeCol)
-        editorRemove.triggered.connect(self.remove_row)
-        self.setWindowTitle("Cyclotron Analysis")
-
-        self.fileMenu = QtWidgets.QMenu('&File', self)
-        self.fileMenu.addAction('&Quit', self.fileQuit,
-                                 QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
+    def adding_open_actions(self):
+        self.fileMenu = self.mainMenu.addMenu('&File')
         self.menuBar().addMenu(self.fileMenu)
-        self.help_menu = QtWidgets.QMenu('&Help', self)
-        self.menuBar().addSeparator()
-        self.menuBar().addMenu(self.help_menu)
-        self.main_widget = QtWidgets.QWidget()
-        self.scrollArea = QtWidgets.QScrollArea()
-        self.scrollArea.setWidget(self.main_widget)
-        self.scrollArea.setWidgetResizable(True)
+        self.fileMenu.addAction(self.openFile)
+        self.fileMenu.addAction(self.openFolder)
+        self.fileMenu.addAction(self.loadFileT)
 
-        lay = QtWidgets.QVBoxLayout(self.main_widget)       
-        self.df_subsystem_source_all = []
-        self.df_subsystem_vacuum_all = []
-        self.df_subsystem_magnet_all = []
-        self.df_subsystem_rf_all = []
-        self.df_subsystem_extraction_all = []
-        self.df_subsystem_beam_all = []
-        self.df_subsystem_pressure_all = []
 
-        self.main_widget.setFocus()
-        self.setCentralWidget(self.main_widget)
+    def plot_menu(self):
+        self.openPlotI = QAction('&Plot Ion Source', self)
+        self.openPlotIV = QAction('&Plot Ion Source/Vacuum', self)
+        self.openPlotM = QAction('&Plot Magnet', self)
+        self.openPlotRF = QAction('&Plot RF', self)
+        self.openPlotRFPower = QAction('&Plot RF Power', self)
+        self.openPlotEx = QAction('&Plot Extraction', self)
+        self.openPlotCol = QAction('&Plot Collimators',self)
+        self.openPlotColTarget = QAction('&Plot Target/Collimators',self)
+    
+    def plot_actions(self):
+        self.openPlotI.setShortcut('Ctrl+E')
+        self.openPlotI.setStatusTip('Plot files')
+        self.openPlotI.triggered.connect(self.file_plot)
+        self.openPlotIV.triggered.connect(self.setting_plot_vacuum)
+        self.openPlotM.triggered.connect(file_plots.file_plot_magnet)
+        self.openPlotRF.triggered.connect(self.setting_plot_RF)
+        self.openPlotRFPower.triggered.connect(self.setting_plot_RF_power)
+        self.openPlotEx.triggered.connect(file_plots.file_plot_extraction)
+        self.openPlotCol.triggered.connect(file_plots.file_plot_collimation)
+        self.openPlotColTarget.triggered.connect(file_plots.file_plot_collimation_target)
 
-        self.home(lay)
-        self.setMinimumSize(1000, 800)
+    def adding_plot_actions(self):
+        editorMenu = self.mainMenu.addMenu('&Plot Individual Files')
+        editorMenu.addAction(self.openPlotI)
+        editorMenu.addAction(self.openPlotIV)
+        editorMenu.addAction(self.openPlotM)
+        editorMenu.addAction(self.openPlotRF)
+        editorMenu.addAction(self.openPlotRFPower)
+        editorMenu.addAction(self.openPlotEx)
+        editorMenu.addAction(self.openPlotCol)
+        editorMenu.addAction(self.openPlotColTarget)
 
+    def plot_menu_source(self):
+        self.openPlotI_S = QAction('&Plot Collimators/Ion Source', self)
+        self.openPlotIV_S = QAction('&Plot Vacuum/Magnet vs Ion Source', self)
+        self.openPlotRF_S = QAction('&Plot RF vs Ion Source', self)
+        self.openPlotEx_S = QAction('&Plot Extraction vs Ion Source', self)
+        self.openPlotI.setShortcut('Ctrl+E')
+        self.openPlotI.setStatusTip('Plot files')
+
+
+    def plot_source_actions(self):
+        self.openPlotI_S.triggered.connect(file_plots.file_plot_collimators_source)
+        self.openPlotIV_S.triggered.connect(file_plots.file_plot_vacuum_source)
+        self.openPlotRF_S.triggered.connect(file_plots.file_plot_rf_source)
+        self.openPlotEx_S.triggered.connect(file_plots.file_plot_extraction_source)
+
+    def adding_plot_source(self):
+        editorMenu_S = self.mainMenu.addMenu('&Plot Individual Files (Source)')
+        editorMenu_S.addAction(self.openPlotI_S)
+        editorMenu_S.addAction(self.openPlotIV_S)
+        editorMenu_S.addAction(self.openPlotRF_S)
+        editorMenu_S.addAction(self.openPlotEx_S)
+
+    def edit_menu(self):
+        self.editplotmax = QAction('&Remove Max/Min Values',self)
+        self.resetplotmax = QAction('&Add Max/Min Values',self)
+        self.editplottarget1 = QAction('&Remove Target 1',self)
+        self.editplottarget4 = QAction('&Remove Target 4',self)
+        self.editplottarget1_add = QAction('&Add Target 1',self)
+        self.editplottarget4_add = QAction('&Add Target 4',self)
+        self.editplotweek = QAction('&Add Week/Remove days',self)
+        self.editplotday = QAction('&Add day/Remove week',self)
+        self.editplottime = QAction('&Add day gap',self)
+        self.editplottime_remove = QAction('&Remove day gap',self)
+
+    def edit_actions(self):      
+        self.editplotmax.triggered.connect(self.flag_max)
+        self.resetplotmax.triggered.connect(self.flag_max_reset)
+        self.editplottarget1.triggered.connect(self.flag_target1)
+        self.editplottarget4.triggered.connect(self.flag_target4)
+        self.editplottarget1_add.triggered.connect(self.flag_target1_add)
+        self.editplottarget4_add.triggered.connect(self.flag_target4_add)
+        self.editplotweek.triggered.connect(self.flag_week)
+        self.editplotday.triggered.connect(self.flag_day)
+        self.editplottime.triggered.connect(self.flag_day_gap)
+        self.editplottime_remove.triggered.connect(self.flag_no_day_gap)
+
+    def adding_edit_actions(self):
+        self.plotMenu = self.mainMenu.addMenu('&Edit Trends Plots')
+        self.plotMenu.addAction(self.editplottime)
+        self.plotMenu.addAction(self.editplottime_remove)
+        self.plotMenu.addAction(self.editplotmax)
+        self.plotMenu.addAction(self.resetplotmax)
+        self.plotMenu.addAction(self.editplottarget1)
+        self.plotMenu.addAction(self.editplottarget4)
+        self.plotMenu.addAction(self.editplottarget1_add)
+        self.plotMenu.addAction(self.editplottarget4_add)
+        self.plotMenu.addAction(self.editplotweek)
+        self.plotMenu.addAction(self.editplotday)
+
+    def remove_menu(self):                
+        self.removeRow = QAction('&Remove selected row', self)
+        self.removeCol = QAction('&Remove selected column', self)
+
+    def remove_menu_action(self):
+        self.editorRemove = self.mainMenu.addMenu('&Remove')
+        self.editorRemove.addAction(self.removeRow)
+        self.editorRemove.addAction(self.removeCol)
+        self.editorRemove.triggered.connect(self.remove_row)
 
     def file_plot(self):
         file_plots.file_plot(self)
@@ -317,12 +345,11 @@ class window(QMainWindow):
         self.tab3_data()
         # Add tabs to widget
         main_layout.addWidget(self.tabs)
-        #self.setLayout(self.layout)
         # Add tabs to widget
         main_layout.addWidget(self.tabs)
         #self.setLayout(self.layout)
        
-    # FLAG SECTION
+    # TAB PARAMETERES
 
     def tab1_layout(self):
         self.tab1.main_layout = QtWidgets.QVBoxLayout(self)
@@ -446,10 +473,7 @@ class window(QMainWindow):
         , r"Collimator current r [uA]", "Collimator current l rel[%]", "Collimator current r rel [%]","Target current rel [%]"]
         self.tableWidget_tab3.setHorizontalHeaderLabels(observables)
 
-
-
-    def fileQuit(self):
-        self.close()
+    #FLAGS
 
     def flag_max(self):
         self.max_min_value = 1
@@ -486,6 +510,15 @@ class window(QMainWindow):
     def flag_day_gap(self):
         self.flag_no_gap = 0
 
+    # FUNCTIONS USING A CONNECT 
+    
+    def remove_row(self):
+        index=(self.tableWidget.selectionModel().currentIndex())
+        self.tableWidget.removeRow(index.row())
+        rowPosition = self.tableWidget.rowCount()
+        self.tableWidget.insertRow(rowPosition)
+        self.current_row = self.current_row -1
+    
 
     def file_folder(self):
         # Opening input folder
@@ -532,13 +565,6 @@ class window(QMainWindow):
         self.current_row += 1
 
 
-    def remove_row(self):
-        index=(self.tableWidget.selectionModel().currentIndex())
-        self.tableWidget.removeRow(index.row())
-        rowPosition = self.tableWidget.rowCount()
-        self.tableWidget.insertRow(rowPosition)
-        self.current_row = self.current_row -1
-    
     def file_output(self,values):
         #Computing or just displaying trends
         options = QFileDialog.Options()

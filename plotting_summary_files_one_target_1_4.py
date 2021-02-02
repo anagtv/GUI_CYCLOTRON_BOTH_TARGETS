@@ -12,7 +12,7 @@ import sys
 sys.path.append("/Users/anagtv/Desktop/Cyclotron_python")
 sys.path.append("/Users/anagtv/Documents/Beta-Beat.src-master")
 #from tfs_files import tfs_pandas
-from mpl_interaction import figure_pz
+#from mpl_interaction import figure_pz
 import matplotlib.pyplot as plt
 import tfs
 import datetime
@@ -660,6 +660,8 @@ def generic_plot_no_gap_two_quantities_collimators(self,df_sorted_combined,label
     sel_system_4 = Selection_system()
     for i in range(len(index_foil_1)):
         checking_value = (index_foil_1[i] == list(range(min(index_foil_1[i]), max(index_foil_1[i])+1)))
+        if len(index_foil_1) == 1:
+           checking_value =  checking_value[0]
         if checking_value == True:
             sel_system_1.horizontal_mark_plot.append(index_foil_sorted_1_position[i][0])
             sel_system_1.horizontal_value_plot.append(unique_index_foil_1[i])
@@ -891,6 +893,8 @@ def generic_plot_no_gap_two_quantities_with_foil(self,df_sorted_combined,label_1
     print (unique_index_foil_4)
     for i in range(len(index_foil_1)):
         checking_value = (index_foil_1[i] == list(range(min(index_foil_1[i]), max(index_foil_1[i])+1)))
+        if len(index_foil_1) == 1:
+           checking_value =  checking_value[0]
         if checking_value == True:
             sel_system_1.horizontal_mark_plot.append(index_foil_sorted_1_position[i][0])
             sel_system_1.horizontal_value_plot.append(unique_index_foil_1[i])
@@ -948,6 +952,8 @@ def generic_plot_no_gap_one_quantitie_with_foil(self,df_sorted_combined,label_1,
         print (index_foil_1[i])
         checking_value = (index_foil_1[i] == list(range(min(index_foil_1[i]), max(index_foil_1[i])+1)))
         print (checking_value)
+        if len(index_foil_1) == 1:
+           checking_value =  checking_value[0]
         if checking_value == True:
             sel_system_1.horizontal_mark_plot.append(index_foil_sorted_1_position[i][0])
             sel_system_1.horizontal_value_plot.append(unique_index_foil_1[i])
@@ -962,7 +968,7 @@ def generic_plot_no_gap_one_quantitie_with_foil(self,df_sorted_combined,label_1,
         print (index_foil_4)
         print (len(index_foil_4))
         print (index_foil_4[i])
-        print (index_foil_4[0][i] == list(range(min(index_foil_4[i]), max(index_foil_4[i])+1)))
+        #print (index_foil_4[0][i] == list(range(min(index_foil_4[i]), max(index_foil_4[i])+1)))
         checking_value = (index_foil_4[i] == list(range(min(index_foil_4[i]), max(index_foil_4[i])+1)))
         print (np.array(checking_value))
         if len(index_foil_4) == 1:

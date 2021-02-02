@@ -61,16 +61,16 @@ def get_all_values(date_week,date_week_unique,file_df,column,target):
     file_source_weeks = []
     print ("UNIQUE")
     print (date_week_unique)
-    print (range(0,len(date_week_unique)-1,2))
-    for i in range(0,len(date_week_unique)-1,2):
+    print (target)
+    for i in range(0,len(date_week_unique),1):
+        print(date_week_unique[i])
         index_week = duplicates(date_week,date_week_unique[i])
-        index_week_2 = duplicates(date_week,date_week_unique[i+1])
-        index_total = index_week + index_week_2
+        #index_week_2 = duplicates(date_week,date_week_unique[i+1])
+        index_total = index_week
         index_total = np.array(index_total)
         #index_total = index_total[index_total < 53]
         print ("WEEKS")
         print (index_week)
-        print (index_week_2)
         #print (date_week_unique[i],date_week_unique[i+1])
         #print (index_total) 
         for i in range(len(index_total)):
@@ -78,7 +78,7 @@ def get_all_values(date_week,date_week_unique,file_df,column,target):
            print (index_total)
            print (i)
            print (index_total[i])
-           print (file_df.TARGET)
+           print (file_df[column][index_total[i]])
            if file_df.TARGET[index_total[i]] == target:
                     file_source_week.append(file_df[column][index_total[i]])
            #except:
@@ -146,9 +146,9 @@ def get_latex_table_suumary(file_weeks_average_1,file_weeks_average_4,file_weeks
     file_source_weeks_4_correct_format = get_correct_format(file_weeks_average_4,file_weeks_std_4,error_bar_list_4)
     file_source_weeks_1_correct_format.insert(0, label_1)
     file_source_weeks_4_correct_format.insert(0, label_4)
-    top_row = ["","Before PM"]
-    for i in range(1,2*len(file_weeks_average_1),2):
-        top_row.append("Week " + str(i)+ "-" + str(i+1))
+    top_row = [""]
+    for i in range(len(file_weeks_average_1)):
+        top_row.append("Week " + str(i))
     rows = [top_row, file_source_weeks_1_correct_format,
         file_source_weeks_4_correct_format]
     print (rows)

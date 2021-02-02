@@ -12,7 +12,7 @@ import sys
 sys.path.append("/Users/anagtv/Desktop/Cyclotron_python")
 sys.path.append("/Users/anagtv/Documents/Beta-Beat.src-master")
 #from tfs_files import tfs_pandas
-from mpl_interaction import figure_pz
+#from mpl_interaction import figure_pz
 import matplotlib.pyplot as plt
 import tfs
 import datetime
@@ -35,7 +35,8 @@ COLUMNS_BEAM = ["FILE","DATE","TARGET","FOIL","COLL_CURRENT_L_MAX","COLL_CURRENT
     "RELATIVE_COLL_CURRENT_R_MAX","RELATIVE_COLL_CURRENT_R_MIN","RELATIVE_COLL_CURRENT_R_AVE","RELATIVE_COLL_CURRENT_R_STD",
     "TARGET_CURRENT_MAX","TARGET_CURRENT_MIN","TARGET_CURRENT_AVE","TARGET_CURRENT_STD","FOIL_CURRENT_MAX","FOIL_CURRENT_MIN","FOIL_CURRENT_AVE","FOIL_CURRENT_STD",
     "RELATIVE_TARGET_CURRENT_MAX","RELATIVE_TARGET_CURRENT_MIN","RELATIVE_TARGET_CURRENT_AVE","RELATIVE_TARGET_CURRENT_STD",
-    "EXTRACTION_LOSSES_MAX","EXTRACTION_LOSSES_MIN","EXTRACTION_LOSSES_AVE","EXTRACTION_LOSSES_STD"]
+    "EXTRACTION_LOSSES_MAX","EXTRACTION_LOSSES_MIN","EXTRACTION_LOSSES_AVE","EXTRACTION_LOSSES_STD",
+    "RELATIVE_COLL_CURRENT_MAX","RELATIVE_COLL_CURRENT_MIN","RELATIVE_COLL_CURRENT_AVE","RELATIVE_COLL_CURRENT_STD"]
 COLUMNS_EXTRACTION = ["FILE","DATE","TARGET","FOIL","CAROUSEL_POSITION_MAX","CAROUSEL_POSITION_MIN","CAROUSEL_POSITION_AVE","CAROUSEL_POSITION_STD"
     ,"BALANCE_POSITION_MAX","BALANCE_POSITION_MIN","BALANCE_POSITION_AVE","BALANCE_POSITION_STD"]
 COLUMNS_TRANSMISSION = ["FILE","DATE","TARGET","TRANSMISSION","FOIL"]
@@ -67,16 +68,38 @@ def get_data_tuple(path_file):
             parts)
     target_number = (np.array(all_parts[0])[1])
     date_stamp = (np.array(all_parts[0])[8])
+    site_name = (np.array(all_parts[1])[2])
     if len(np.array(all_parts[0])) == 10: 
-        #print ("HEREEEEE")
         date_stamp = (np.array(all_parts[0])[8] + "0" + np.array(all_parts[0])[9] )
-        #print (date_stamp)
-    #print ("DATEEEEEEEEE")
-    #print (len((np.array(all_parts[0]))))
-    #print ((np.array(all_parts[0])))
-    #print (date_stamp)
     real_values = all_parts[4:]
-    return real_values,target_number,date_stamp 
+    return real_values,target_number,date_stamp,site_name
+
+def get_logfile_lines(path_file):
+    lines = []
+    print (path_file)
+    logfile = open(path_file,"r")
+    print ("LOGFILES")
+    print (logfile)
+    for line in logfile:
+         parts = line.split()
+         lines.append(
+            parts)
+    return lines
+
+def get_headers(path_file):
+    headers_lines = get_logfile_lines(path_file)
+    target_number = (np.array(headers_lines[0])[1])
+    date_stamp = (np.array(headers_lines[0])[8])
+    site_name = (np.array(headers_lines[1])[2])
+    file_number = (np.array(headers_lines[0])[6])
+    if len(np.array(headers_lines[0])) == 10: 
+        date_stamp = (np.array(headers_lines[0])[8] + "0" + np.array(headers_lines[0])[9] )
+    return target_number,date_stamp,site_name,file_number
+
+def get_irradiation_information(path_file):
+    irradiation_information = get_logfile_lines(path_file)    
+    irradiation_information = irradiation_information[4:]
+    return irradiation_information  
 
 def get_data(real_values):
     #print ("real values here")
@@ -98,7 +121,7 @@ def get_data(real_values):
 def get_time(excel_data_df,current):
     #print (excel_data_df)
     time = excel_data_df.Time[excel_data_df['Target_I'].astype(float) > float(current)]
-    relative_time = time 
+    #relative_time = time 
     return time
 
 
@@ -174,8 +197,10 @@ def get_isochronism(data_df):
     print ("HEREEEEE")
     print (minimum_value)
     print (maximum_value)
-    print (data_df.Magnet_I[data_df.Magnet_I == minimum_value])
-    print (data_df.Magnet_I[data_df.Magnet_I == maximum_value])
+    print ("ISOCHRONISM")
+    print (data_df.Magnet_I)
+    print (data_df.Magnet_I[data_df.Magnet_I == minimum_value_str])
+    print (data_df.Magnet_I[data_df.Magnet_I == maximum_value_str])
     intial_values = data_df.Magnet_I[data_df.Magnet_I == minimum_value_str]
     final_values = data_df.Magnet_I[data_df.Magnet_I == maximum_value_str]
     if len(final_values) == 0: 
@@ -282,11 +307,6 @@ def get_target_pressure(excel_data_df,current):
 
 def get_target_parameters(excel_data_df):
     max_current = 0.9*(np.max(excel_data_df['Target_I'].astype(float)))
-    #print ("MAX CURRENT HEREEEE")
-    #print (max_current)
-    #print ("numpy values")
-    #print (np.array(excel_data_df.Target_I).astype(np.float))
-    #print (np.max(np.array(excel_data_df.Target_I).astype(np.float)))
     target_current = excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) > float(max_current)].astype(float)
     return target_current,max_current
 
@@ -617,12 +637,14 @@ def get_summary_beam(df_subsystems_beam,file,target_number,date_stamp,df_beam):
     target_rel = df_subsystems_beam.Target_rel
     extraction_losses = df_subsystems_beam.Extraction_losses
     foil_number = np.average((df_subsystems_beam.Foil_No))
+    collimator_total_rel = collimator_r_rel + collimator_l_rel
     ave_extraction_current,std_extraction_current,max_extraction_current,min_extraction_current = get_statistic_values(extraction_current)
     ave_target_current,std_target_current,max_target_current,min_target_current = get_statistic_values(target_current)
     ave_collimator_r,std_collimator_r, max_collimator_r, min_collimator_r = get_statistic_values(collimator_r)
     ave_collimator_l,std_collimator_l, max_collimator_l, min_collimator_l = get_statistic_values(collimator_l)
     ave_collimator_r_rel,std_collimator_r_rel, max_collimator_r_rel, min_collimator_r_rel = get_statistic_values(collimator_r_rel)
     ave_collimator_l_rel,std_collimator_l_rel, max_collimator_l_rel, min_collimator_l_rel = get_statistic_values(collimator_l_rel)
+    ave_collimator_total_rel,std_collimator_total_rel, max_collimator_total_rel, min_collimator_total_rel = get_statistic_values(collimator_total_rel)
     ave_target_rel,std_target_rel,max_target_rel,min_target_rel = get_statistic_values(target_rel)
     ave_extraction_losses,std_extraction_losses,max_extraction_losses,min_extraction_losses = get_statistic_values(extraction_losses)
     beam_values = [[file,date_stamp,target_number,foil_number,
@@ -633,7 +655,8 @@ def get_summary_beam(df_subsystems_beam,file,target_number,date_stamp,df_beam):
     max_target_current,min_target_current,ave_target_current,std_target_current,
     max_extraction_current,min_extraction_current,ave_extraction_current,std_extraction_current,
     max_target_rel,min_target_rel,ave_target_rel,std_target_rel,
-    max_extraction_losses,min_extraction_losses,ave_extraction_losses,std_extraction_losses]]
+    max_extraction_losses,min_extraction_losses,ave_extraction_losses,std_extraction_losses, 
+    max_collimator_total_rel,min_collimator_total_rel, ave_collimator_total_rel, std_collimator_total_rel,]]
     df_beam_i = pd.DataFrame((beam_values),columns=COLUMNS_BEAM )      
     df_beam = df_beam.append(df_beam_i,ignore_index=True)
     return df_beam
@@ -672,31 +695,16 @@ def main(input_path,output_path,target_current):
     for file in file_path_array_max:
         file_path = os.path.join(input_path_names, file)
         #print (file)
-        file_number.append(float(file[:-4]))
-        real_values,target_number,date_stamp = get_data_tuple(file_path)
+        #file_number.append(float(file[:-4]))
+        #real_values,target_number,date_stamp = get_data_tuple(file_path)
+        [target_number,date_stamp,name,file_number] = get_headers(file_path)
+        real_values = get_irradiation_information(file_path)
         # Get the dataframe from logfile 
         #date_stamp_all.append((date_stamp))
         excel_data_df = get_data(real_values)
         target_current = excel_data_df.Target_I.astype(float)
-        print ("AVERAGE CURRENT")
-        print (np.average(target_current))
-        #print (excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 25.0].astype(float))
-        print ("LENS")
-        print (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 50.0].astype(float)))
-        print (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 25.0].astype(float)))
-        print (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 0.0].astype(float)))
-        print (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 25.0].astype(float)) +len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) ==0.0].astype(float)))
         pre_irradiation_len = (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 50.0].astype(float))) + (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 25.0].astype(float))) + (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 0.0].astype(float)))
-        print (len(excel_data_df.Target_I.astype(float)))
-        print (pre_irradiation_len)
-        print (pre_irradiation_len/len(excel_data_df.Target_I.astype(float)))
-        print ("RELATIVE")
         pre_irradiation_len_relative = (pre_irradiation_len/len(excel_data_df.Target_I.astype(float)))
-        print (pre_irradiation_len)
-        print ("FILE")
-        print (file)
-        #print (excel_data_df.Time[excel_data_df['Target_I'].astype(float) == 25.0])
-        #print (len(excel_data_df.Time[excel_data_df['Target_I'].astype(float) == 25.0])/len(excel_data_df.Target_I.astype(float)))
         if (pre_irradiation_len_relative) > 0.3:
             possible_pre_irradiation.append(file)
         else:
@@ -705,8 +713,8 @@ def main(input_path,output_path,target_current):
     for file in (possible_normal):
         file_path = os.path.join(input_path_names, file)
         print (file)
-        file_number.append(float(file[:-4]))
-        real_values,target_number,date_stamp = get_data_tuple(file_path)
+        [target_number,date_stamp,name,file_number] = get_headers(file_path)
+        real_values = get_irradiation_information(file_path)
         # Get the dataframe from logfile 
         #date_stamp_all.append((date_stamp))
         excel_data_df = get_data(real_values)

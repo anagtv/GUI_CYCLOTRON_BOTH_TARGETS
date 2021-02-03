@@ -17,7 +17,7 @@ def setting_plot(self):
     self.sc1.axes[0].clear()
     self.sc1.axes[1].clear()
 
-def file_plot_vacuum(self):
+def file_plot_one_functions(self):
     setting_plot(self)
     saving_files_summary_list_20200420.get_plots_one_functions_all(self,self.y_values_right,self.x_values,self.fileName[-8:-4],self.label_right,1)
     saving_files_summary_list_20200420.get_plots_one_functions_all(self,self.y_values_left,self.x_values,self.fileName[-8:-4],self.label_left,0)
@@ -41,6 +41,28 @@ def file_plot_two_one_functions(self):
     self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)      
     self.sc1.draw()
     self.sc1.show()
+
+
+def file_plot_iso_one_functions(self):
+    saving_files_summary_list_20200420.get_plots_one_functions_all(self,self.y_values_left,self.x_values,self.fileName[-8:-4],self.label_left,0)
+    get_plots_tunning(self,self.y_values_coll,self.y_values_target,self.y_values_foil,self.y_values_magnet,1)
+    self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)
+    self.sc1.draw()
+    self.sc1.show()
+
+
+def get_plots_tunning(self,current_col,current_target,current_foil,magnet_current,pn):
+    self.sc1.axes[pn].plot(magnet_current,current_col,'o',label="Collimators",picker=5)
+    self.sc1.axes[pn].plot(magnet_current,current_target,'o',label="Target",picker=5)
+    self.sc1.axes[pn].plot(magnet_current,current_foil,'o',label="Foil",picker=5)
+    #self.sc1.axes[pn].plot(time,function2,label=file_names[1])
+    self.sc1.axes[pn].legend(loc='best',ncol=5,fontsize=10)
+    self.sc1.axes[pn].set_xlabel("Magnet Current [A]",fontsize=10)
+    self.sc1.axes[pn].set_ylabel(str(r"Current [$\mu$A]"),fontsize=10)
+    print ("HEREEEEEEE")
+    ##print (ticks_to_use_list)
+    print (magnet_current)
+    self.sc1.axes[pn].tick_params(labelsize=10)
 
 # SOURCE 
 
@@ -175,25 +197,4 @@ def file_plot_collimation_target(self):
         self.sc1.draw()
         self.sc1.show()
 
-def file_plot_magnet(self):
-        [real_values,target_number,date_stamp] = saving_files_summary_list_20200420.get_data_tuple(str(self.fileName))
-        print ("PLOTTING MAGNETIC FIELD")
-        print (self.fileName)
-        data_df = saving_files_summary_list_20200420.get_data(real_values)
-        [target_current,current] = saving_files_summary_list_20200420.get_target_parameters(data_df)
-        target_current = data_df.Target_I.astype(float)
-        current = 0
-        time = saving_files_summary_list_20200420.get_time(data_df,current)
-        foil_number = saving_files_summary_list_20200420.get_foil_number(data_df,current) 
-        self.sc1.axes[0].clear()
-        self.sc1.axes[1].clear()  
-        self.df_subsystem_magnet_selected = self.df_subsystem_magnet_all[self.row_to_plot]    
-        saving_files_summary_list_20200420.get_plots_one_functions_all(self,data_df.Magnet_I.astype(float),data_df.Time,self.fileName[-8:-4],"Magnet Current [A]",0)
-        df_iso = saving_files_summary_list_20200420.get_isochronism(data_df)
-        print ("HEREEEE ISO")
-        print (df_iso)
-        print ((df_iso.Coll_l_I).astype(float) + (df_iso.Coll_r_I).astype(float))
-        saving_files_summary_list_20200420.get_plots_tunning(self,(df_iso.Coll_l_I).astype(float) + (df_iso.Coll_r_I).astype(float),df_iso.Target_I,df_iso.Foil_I,df_iso.Magnet_I,1)
-        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)
-        self.sc1.draw()
-        self.sc1.show()
+

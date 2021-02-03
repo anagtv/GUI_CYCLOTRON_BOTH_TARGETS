@@ -43,17 +43,7 @@ def plot_menu(self):
         self.openPlotCol = QAction('&Plot Collimators',self)
         self.openPlotColTarget = QAction('&Plot Target/Collimators',self)
     
-def plot_actions(self):
-        self.openPlotI.setShortcut('Ctrl+E')
-        self.openPlotI.setStatusTip('Plot files')
-        self.openPlotI.triggered.connect(self.file_plot)
-        self.openPlotIV.triggered.connect(self.setting_plot_vacuum)
-        self.openPlotM.triggered.connect(file_plots.file_plot_magnet)
-        self.openPlotRF.triggered.connect(self.setting_plot_RF)
-        self.openPlotRFPower.triggered.connect(self.setting_plot_RF_power)
-        self.openPlotEx.triggered.connect(file_plots.file_plot_extraction)
-        self.openPlotCol.triggered.connect(file_plots.file_plot_collimation)
-        self.openPlotColTarget.triggered.connect(file_plots.file_plot_collimation_target)
+
 
 def adding_plot_actions(self):
         editorMenu = self.mainMenu.addMenu('&Plot Individual Files')
@@ -132,7 +122,7 @@ def remove_menu(self):
 def remove_menu_action(self):
         self.editorRemove = self.mainMenu.addMenu('&Remove')
         self.editorRemove.addAction(self.removeRow)
-        self.editorRemove.addAction(self.removeCol)
+        #self.editorRemove.addAction(plotting_data.removeCol)
         self.editorRemove.triggered.connect(self.remove_row)
 
 

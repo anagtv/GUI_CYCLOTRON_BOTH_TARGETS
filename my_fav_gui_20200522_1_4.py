@@ -73,12 +73,26 @@ class window(QMainWindow):
 
     def __init__(self):
         super(window, self).__init__()
-        frameWidget = UpdateFrame(self)
+        #frameWidget = UpdateFrame(self)
         self.setWindowTitle("Cyclotron Analysis")
         self.setGeometry(50, 50, 1500, 1000)
         self.setWindowIcon(QIcon('pic.png'))
+        #menus.main_menu(self)
+        self.mainMenu = self.menuBar()
+        self.main_widget = QtWidgets.QWidget()
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidget(self.main_widget)
+        self.scrollArea.setWidgetResizable(True)
+        self.main_widget.setFocus()
+        self.setCentralWidget(self.main_widget)
+        self.lay = QtWidgets.QVBoxLayout(self.main_widget)   
+        self.setMinimumSize(1000, 800)
         #
-        menus.main_menu(self)
+
+
+class menus_functions(window):
+    def __init__(self):
+        super(menus_functions, self).__init__()
         # INIALIZE VARIABLE
         columns_names.flags(self)
         columns_names.initial_df(self)
@@ -87,13 +101,10 @@ class window(QMainWindow):
         menus.open_menu_actions(self)
         #
         menus.edit_menu(self)
-        menus.edit_actions(self)
         #
         menus.plot_menu(self)
-        menus.plot_actions(self)
         #
         menus.plot_menu_source(self)
-        menus.plot_source_actions(self)
         #
         menus.remove_menu(self)
         #
@@ -101,99 +112,17 @@ class window(QMainWindow):
         menus.adding_edit_actions(self)
         menus.adding_plot_actions(self)
         menus.adding_plot_source(self)
-        menus.remove_menu_action(self)
         #
-        self.main_widget.setFocus()
-        self.setCentralWidget(self.main_widget)
-        self.lay = QtWidgets.QVBoxLayout(self.main_widget)   
-        home_tabs.home(self)
-        self.setMinimumSize(1000, 800)
 
-
-    def file_plot(self):
-        file_plots.file_plot(self)
-
-    def setting_plot_vacuum(self):
-        self.x_values = self.file_df.Time
-        self.y_values_left = self.file_df.Vacuum_P.astype(float)*1e5
-        self.y_values_right = self.file_df.Arc_I.astype(float)
-        self.label_left = r"Vacuum P [$10^{-5}$ mbar]"
-        self.label_right = "Source Current [mA]"
-        file_plots.file_plot_vacuum(self)
-
-    def setting_plot_RF(self):
-        self.x_values = self.file_df.Time 
-        self.y_values_left_1 = self.file_df.Dee_1_kV.astype(float)
-        self.y_values_left_2 = self.file_df.Dee_2_kV.astype(float)
-        self.legend_left_1 = "Dee1"
-        self.legend_left_2 = "Dee2"
-        self.label_left = "Voltage [kV]"
-        self.y_values_right_1 = self.file_df.Flap1_pos.astype(float)
-        self.y_values_right_2 = self.file_df.Flap2_pos.astype(float)
-        self.legend_right_1 = "Flap1"
-        self.legend_right_2 = "Flap2"
-        self.label_right = "Position [%]"
-        file_plots.file_plot_two_functions(self)
-
-    def setting_plot_RF_power(self):
-        self.x_values = self.file_df.Time
-        self.y_values_left_1 = self.file_df.RF_fwd_W.astype(float)
-        self.y_values_left_2 = self.file_df.RF_refl_W.astype(float)
-        self.legend_left_1 = "Forwared"
-        self.legend_left_2 = "Reflected"
-        self.label_left = "Power [kW]"
-        self.y_values_right = self.file_df.Phase_load.astype(float)
-        self.legend_right = "Phase load"
-        self.label_right = "Phase load"
-        file_plots.file_plot_two_one_functions(self)
-
-
-    #FLAGS
-
-    def flag_max(self):
-        self.max_min_value = 1
-        self.handleSelectionChanged_variabletoplot
-        self.sc3.draw()
-        self.sc3.show()
-
-    def flag_max_reset(self):
-        self.max_min_value = 0
-
-    def flag_target4(self):
-        self.target_4_value = 1
-        
-    def flag_target4_add(self):
-        self.target_4_value = 0
-        
-    def flag_week(self):
-        self.week_value = 1
-        self.day_value = 0
-
-    def flag_day(self):
-        self.week_value = 0
-        self.day_value = 1
-
-    def flag_target1(self):
-        self.target_1_value = 1
-
-    def flag_target1_add(self):
-        self.target_1_value = 0
-        
-    def flag_no_day_gap(self):
-        self.flag_no_gap = 1 
-
-    def flag_day_gap(self):
-        self.flag_no_gap = 0
-
-    # FUNCTIONS USING A CONNECT 
-
-    def remove_row(self):
-        index=(self.tableWidget.selectionModel().currentIndex())
-        self.tableWidget.removeRow(index.row())
-        rowPosition = self.tableWidget.rowCount()
-        self.tableWidget.insertRow(rowPosition)
-        self.current_row = self.current_row -1
-    
+     
+    def file_open_message(self,values):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        self.fileName_completed, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "/Users/anagtv/Documents/OneDrive/046 - Medical Devices/Mantenimientos ciclotrones/TCP/LOGS","All Files (*);;Python Files (*.py)", options=options)
+        managing_files.file_open(self)
+        managing_files.file_open_summary(self)
+        self.first_row = [self.file_number,self.name,self.date_stamp,self.target_number]
+        plotting_data.writing_values(self)
 
     def file_folder(self):
         # Opening input folder
@@ -218,31 +147,6 @@ class window(QMainWindow):
         # Move the position for writing the data
         self.current_row_folder += 1
 
-    def file_open_message(self,values):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        self.fileName_completed, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "/Users/anagtv/Documents/OneDrive/046 - Medical Devices/Mantenimientos ciclotrones/TCP/LOGS","All Files (*);;Python Files (*.py)", options=options)
-        managing_files.file_open(self)
-        managing_files.file_open_summary(self)
-        self.first_row = [self.file_number,self.name,self.date_stamp,self.target_number]
-        self.writing_values()
-
-    def writing_values(self):
-        beam_summary = [self.df_vacuum.PRESSURE_AVE,self.df_magnet.CURRENT_AVE,self.df_source.CURRENT_AVE,self.df_rf.DEE1_VOLTAGE_AVE,self.df_rf.DEE2_VOLTAGE_AVE,
-        self.df_beam.TARGET_CURRENT_AVE,self.df_beam.FOIL_CURRENT_AVE,self.df_beam.COLL_CURRENT_L_AVE,self.df_beam.COLL_CURRENT_R_AVE,self.df_beam.RELATIVE_COLL_CURRENT_AVE,
-        self.df_beam.RELATIVE_TARGET_CURRENT_AVE]
-        self.tableWidget.setItem(self.current_row,4, QTableWidgetItem(str(len(self.voltage_dee_1))))
-        self.tableWidget.setItem(self.current_row,5, QTableWidgetItem(str(len(self.voltage_dee_2))))
-        for i in range(4):
-             self.tableWidget.setItem(self.current_row,i, QTableWidgetItem(self.first_row[i]))
-        for i in range(6,17):
-             print (beam_summary[i-6].iloc[self.current_row])
-             self.tableWidget.setItem(self.current_row,i, QTableWidgetItem(str(round(beam_summary[i-6].iloc[self.current_row],2))))
-        self.tableWidget.setItem(self.current_row,18, QTableWidgetItem(self.fileName_completed))
-        self.datos = [self.tableWidget.item(0,0).text()]    
-        self.current_row += 1
-
-
     def file_output(self,values):
         #Computing or just displaying trends
         options = QFileDialog.Options()
@@ -259,8 +163,53 @@ class window(QMainWindow):
           for j in range(len(file_components_columns[i])):          
               self.tablefiles_tab2.setItem(self.current_row_analysis,1, QTableWidgetItem(str(file_components_columns[i][j])))
               self.current_row_analysis += 1
-        self.current_row_analysis = 0        
-        
+        self.current_row_analysis = 0      
+
+class editing_table(window):
+    def __init__(self):
+        super(editing_table, self).__init__()
+        columns_names.flags(self)
+        columns_names.initial_df(self)
+        menus.remove_menu(self)
+        menus.main_menu(self)
+        #self.setCentralWidget(self.main_widget)
+        #self.lay = QtWidgets.QVBoxLayout(self.main_widget)   
+        #self.setMinimumSize(1000, 800)
+        home_tabs.home(self)
+        menus.remove_menu_action(self)
+
+    def remove_row(self):
+        index=(self.tableWidget.selectionModel().currentIndex())
+        self.tableWidget.removeRow(index.row())
+        rowPosition = self.tableWidget.rowCount()
+        self.tableWidget.insertRow(rowPosition)
+        self.current_row = self.current_row -1
+
+    def writing_values(self):
+        beam_summary = [self.df_vacuum.PRESSURE_AVE,self.df_magnet.CURRENT_AVE,self.df_source.CURRENT_AVE,self.df_rf.DEE1_VOLTAGE_AVE,self.df_rf.DEE2_VOLTAGE_AVE,
+        self.df_beam.TARGET_CURRENT_AVE,self.df_beam.FOIL_CURRENT_AVE,self.df_beam.COLL_CURRENT_L_AVE,self.df_beam.COLL_CURRENT_R_AVE,self.df_beam.RELATIVE_COLL_CURRENT_AVE,
+        self.df_beam.RELATIVE_TARGET_CURRENT_AVE]
+        self.tableWidget.setItem(self.current_row,4, QTableWidgetItem(str(len(self.voltage_dee_1))))
+        self.tableWidget.setItem(self.current_row,5, QTableWidgetItem(str(len(self.voltage_dee_2))))
+        for i in range(4):
+             self.tableWidget.setItem(self.current_row,i, QTableWidgetItem(self.first_row[i]))
+        for i in range(6,17):
+             print (beam_summary[i-6].iloc[self.current_row])
+             self.tableWidget.setItem(self.current_row,i, QTableWidgetItem(str(round(beam_summary[i-6].iloc[self.current_row],2))))
+        self.tableWidget.setItem(self.current_row,18, QTableWidgetItem(self.fileName_completed))
+        self.datos = [self.tableWidget.item(0,0).text()]    
+        self.current_row += 1
+
+    def handleSelectionFile(self):
+        index=(self.tableWidget.selectionModel().currentIndex())
+        self.fileName = index.sibling(index.row(),18).data()
+        print ("FILENAME")
+        print (self.fileName)
+        self.row_to_plot = index.row()
+        managing_files.file_open(self)
+        print ("dataframe")
+        print (self.file_df)
+
     def folder_analyze(self,values):
         #When pressed on Cyclotron trends
         self.question =  QMessageBox()
@@ -270,18 +219,7 @@ class window(QMainWindow):
         self.question.buttonClicked.connect(self.file_output)
         self.question.show()
 
-    def handleSelectionChanged_variabletoanalyze(self):
-        index=(self.tablefiles_tab2.selectionModel().currentIndex())
-        self.fileName=index.sibling(index.row(),index.column()).data()
-
-    def handleSelectionFile(self, selected, deselected):
-        index=(self.tableWidget.selectionModel().currentIndex())
-        self.fileName = index.sibling(index.row(),18).data()
-        self.row_to_plot = index.row()
-        managing_files.file_open(self)
- 
-
-    def handleSelectionFolder(self, selected, deselected):
+    def handleSelectionFolder(self):
         index=(self.tableWidget_logfiles.selectionModel().currentIndex())
         self.fileName=index.sibling(index.row(),index.column()).data()
         self.fileName_folder= index.sibling(index.row(),1499).data()
@@ -338,13 +276,44 @@ class window(QMainWindow):
          #self.table_summary_log.setItem(19,1, QTableWidgetItem(str(round(self.df_subsystem_beam.Target_rel[self.coordinates_x],2))))
          self.current_row_statistics += 1
 
-
-
-    def handleSelectionChanged_variabletoplot(self):
+    def handleSelectionChanged_variabletoanalyze(self):
         index=(self.tablefiles_tab2.selectionModel().currentIndex())
         self.fileName=index.sibling(index.row(),index.column()).data()
-        summary_file_names = ["table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_vacuum.out","table_summary_magnet.out","table_summary_transmission.out"]
-        summary_file_names_d = ["table_summary_rf.out","table_summary_rf.out","table_summary_rf.out","table_summary_extraction.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_transmission.out","table_summary_beam.out"]
+
+
+    def selecting_data_to_plot_reset(self):
+        self.tfs_target_1 = (self.tfs_input[self.tfs_input.TARGET == self.target_1])
+        self.tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == self.target_2])
+        self.tfs_target_1_no_reset = (self.tfs_input[self.tfs_input.TARGET == self.target_1])
+        self.tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == self.target_2])
+        self.tfs_unique_target_1 = (self.tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
+        self.tfs_unique_target_4 = (self.tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
+        self.tfs_target_1.reset_index(drop=True, inplace=True)
+        self.tfs_target_4.reset_index(drop=True, inplace=True)
+
+    def getting_position(tfs_target,tfs_unique_target):
+        index_foil = (((tfs_target.FOIL[tfs_target["FOIL"] == tfs_unique_target.FOIL.iloc[i]].index))).tolist()
+        return index_foil
+
+    def foil_research(self,tfs_target,tfs_target_no_reset,tfs_unique_target):
+        index_foil_list = []
+        index_foil_list_position = []
+        unique_index_foil = np.array(tfs_unique_target.FOIL)
+        for i in range(len(tfs_unique_target.FOIL)):
+           # get all the positions where a given foil is and convert to a list (TARGET 1)
+           positions = tfs_target.FOIL[tfs_target["FOIL"] == tfs_unique_target.FOIL.iloc[i]]
+           index_foil = getting_position(tfs_target,tfs_unique_target)
+           index_foil_position = getting_position(tfs_target_no_reset,tfs_unique_target)
+           # list of positions within the dataframe T1
+           index_foil_list.append(index_foil_tolist)
+           # list of positions in the original dataframe
+           index_foil_list_position.append(index_foil_position_tolist)
+        return index_foil_list,index_foil_list_position,unique_index_foil
+
+    def handleSelectionChanged_variabletoplot(self):
+        summary_file_names = ["table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_vacuum.out","table_summary_magnet.out",
+        "table_summary_rf.out","table_summary_rf.out","table_summary_rf.out","table_summary_extraction.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out",
+        "table_summary_transmission.out"]
         labels = ["CURRENT_","VOLTAGE_","RATIO_","SOURCE_PERFORMANCE","PRESSURE_","CURRENT_","RELATIVE_TARGET_CURRENT_","EXTRACTION_LOSSES_","TRANSMISSION"]
         labels_1 = ["DEE1_VOLTAGE_","FORWARD_POWER_","FLAP1_","CAROUSEL_POSITION_","COLL_CURRENT_L_","RELATIVE_COLL_CURRENT_L_","TARGET_CURRENT_"]
         labels_2 = ["DEE2_VOLTAGE_","REFLECTED_POWER_","FLAP2_","BALANCE_POSITION_","COLL_CURRENT_R_","RELATIVE_COLL_CURRENT_R_","FOIL_CURRENT_"]
@@ -355,248 +324,179 @@ class window(QMainWindow):
         legend = ["T","T","T","T","T","T","T","T","T"]
         legend_1 = ["DEE1 T","FORWARDED T","FLAP 1 T","CAROUSEL T","COLLIMATOR  T","COLLIMATOR  T","TARGET T","COLLIMATOR L T","TARGET T"]
         legend_2 = ["DEE2 T","REFELECTED T","FLAP 2 T","BALANCE T","COLLIMATOR  T","COLLIMATOR  T","FOIL T","COLLIMATOR R T","FOIL T"]
-        print ("INDEX")
-        print (index.row())
-        self.sc3.axes.clear()
-        if index.row() in [0,1,2,3,4,5]:
-            self.sc3.axes.clear()
-            self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names[index.row()]))
-            self.sc3.axes.clear()
-            tfs_target_1 = (self.tfs_input[self.tfs_input.TARGET == ("1")])
-            tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == ("4")])
-            tfs_target_1.reset_index(drop=True, inplace=True)
-            tfs_target_4.reset_index(drop=True, inplace=True)
-            # Same filter but keeping the previous index
-            tfs_target_1_no_reset = ((self.tfs_input[self.tfs_input.TARGET == ("1")]))
-            tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == ("4")])
-            # filtering: removing duplicates from dataframe
-            tfs_unique_target_1 = (tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-            tfs_unique_target_4 = (tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-            print ("LEN")
-            print (len(tfs_unique_target_1))
-            if len(tfs_target_1) == 0:
-                tfs_target_1 = (self.tfs_input[self.tfs_input.TARGET == ("2")])
-                tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == ("5")])
-                tfs_target_1.reset_index(drop=True, inplace=True)
-                tfs_target_4.reset_index(drop=True, inplace=True)
-                # Same filter but keeping the previous index
-                tfs_target_1_no_reset = ((self.tfs_input[self.tfs_input.TARGET == ("2")]))
-                tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == ("5")])
-                # filtering: removing duplicates from dataframe
-                tfs_unique_target_1 = (tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-                tfs_unique_target_4 = (tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-                print ("THEN YOU ARE HEREE")
-                print (tfs_target_1)
-                print (tfs_target_4)
-            # sorting foil list
-            index_foil_list_1 = []
-            index_foil_list_4 = []
-            index_foil_list_1_position = []
-            index_foil_list_4_position = []
-            unique_index_foil_1 = np.array(tfs_unique_target_1.FOIL)
-            unique_index_foil_4 = np.array(tfs_unique_target_4.FOIL)
-            for i in range(len(tfs_unique_target_1.FOIL)):
-               # get all the positions where a given foil is and convert to a list (TARGET 1)
-               index_foil_1 = (((tfs_target_1.FOIL[tfs_target_1["FOIL"] == tfs_unique_target_1.FOIL.iloc[i]].index)))
-               index_foil_tolist_1 = index_foil_1.tolist()
-               # list of positions within the dataframe T1
-               index_foil_list_1.append(index_foil_tolist_1)
-               index_foil_1_position = (((tfs_target_1_no_reset.FOIL[tfs_target_1_no_reset["FOIL"] == tfs_unique_target_1.FOIL.iloc[i]].index)))
-               index_foil_tolist_1_position = index_foil_1_position.tolist()
-               # list of positions in the original dataframe
-               index_foil_list_1_position.append(index_foil_tolist_1_position)
-            for i in range(len(tfs_unique_target_4.FOIL)): 
-               # get all the positions where a given foil is and convert to a list (TARGET 4)
-               index_foil_4 = (((tfs_target_4.FOIL[tfs_target_4["FOIL"] == tfs_unique_target_4.FOIL.iloc[i]].index)))
-               index_foil_tolist_4 = index_foil_4.tolist()
-               index_foil_list_4.append(index_foil_tolist_4)
-               index_foil_4_position = (((tfs_target_4_no_reset.FOIL[tfs_target_4_no_reset["FOIL"] == tfs_unique_target_4.FOIL.iloc[i]].index)))
-               index_foil_tolist_4_position = index_foil_4_position.tolist()
-               index_foil_list_4_position.append(index_foil_tolist_4_position)
-            print ("AND HERE")
-            print (index_foil_list_1)
-            print (index_foil_list_4)
-            index_foil_sorted_1 = np.sort(index_foil_list_1)
-            index_foil_sorted_4 = np.sort(index_foil_list_4)
-            print ("CHECKING ALSO HERE")
-            print (index_foil_sorted_1)
-            print (index_foil_sorted_4)
-            print (np.array(index_foil_sorted_1))
-            print (np.array(index_foil_sorted_4))
-            unique_index_foil_sorted_1 = [unique_index_foil_1 for _,unique_index_foil_1 in sorted(zip(index_foil_list_1,unique_index_foil_1))]
-            unique_index_foil_sorted_4 = [unique_index_foil_4 for _,unique_index_foil_4 in sorted(zip(index_foil_list_4,unique_index_foil_4))]
-            index_foil_sorted_1_position = np.sort(index_foil_list_1_position)
-            index_foil_sorted_4_position = np.sort(index_foil_list_4_position)     
+        index=(self.tablefiles_tab2.selectionModel().currentIndex())
+        self.fileName=index.sibling(index.row(),index.column()).data()
+        self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names[index.row()]))
+        print (self.tfs_input)
+        self.target_2 = int(np.max(self.tfs_input.TARGET))-3
+        self.target_1 = self.target_2-3
+        self.sc3.axes.clear()  
+        self.selecting_data_to_plot_reset()    
+        index_foil_list_1,index_foil_list_1_position,unique_index_foil_1 = self.foil_research(self.tfs_target_1,self.tfs_target_1_no_reset,self.tfs_unique_target_1)
+        index_foil_list_4,index_foil_list_4_position,unique_index_foil_4 = self.foil_research(self.tfs_target_1,self.tfs_target_1_no_reset,self.tfs_unique_target_1)
+        unique_index_foil_sorted_1 = [unique_index_foil_1 for _,unique_index_foil_1 in sorted(zip(index_foil_list_1,unique_index_foil_1))]
+        unique_index_foil_sorted_4 = [unique_index_foil_4 for _,unique_index_foil_4 in sorted(zip(index_foil_list_4,unique_index_foil_4))]
+        index_foil_sorted_1 = np.sort(index_foil_list_1)
+        index_foil_sorted_4 = np.sort(index_foil_list_4)
+        index_foil_sorted_1_position = np.sort(index_foil_list_1_position)
+        index_foil_sorted_4_position = np.sort(index_foil_list_4_position)     
+        if index.row() in range(6):    
             if index.row() == 4:
                   plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie(self,self.tfs_input,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,0,self.flag_no_gap,1)
             elif index.row() == 3: 
                   plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_no_std(self,self.tfs_input,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,0,self.flag_no_gap,1)
             else:
                   plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,self.tfs_input,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,1)        
-        elif index.row() in [13,14,15]:
-            self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names_d[index.row()-7]))
-            self.sc3.axes.clear()
-            tfs_target_1 = ((self.tfs_input[self.tfs_input.TARGET == ("1")]))
-            tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == ("4")])
-            tfs_target_1_no_reset = ((self.tfs_input[self.tfs_input.TARGET == ("1")]))
-            tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == ("4")])
-            tfs_target_1.reset_index(drop=True, inplace=True)
-            tfs_target_4.reset_index(drop=True, inplace=True)
-            tfs_unique_target_1 = (tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-            tfs_unique_target_4 = (tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-            if len(tfs_target_1) == 0:
-                tfs_target_1 = (self.tfs_input[self.tfs_input.TARGET == ("2")])
-                tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == ("5")])
-                tfs_target_1.reset_index(drop=True, inplace=True)
-                tfs_target_4.reset_index(drop=True, inplace=True)
-                # Same filter but keeping the previous index
-                tfs_target_1_no_reset = ((self.tfs_input[self.tfs_input.TARGET == ("2")]))
-                tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == ("5")])
-                # filtering: removing duplicates from dataframe
-                tfs_unique_target_1 = (tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-                tfs_unique_target_4 = (tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-                print ("THEN YOU ARE HEREE")
-                print (tfs_target_1)
-                print (tfs_target_4)
-            index_foil_list_1 = []
-            index_foil_list_4 = []
-            index_foil_list_1_position = []
-            index_foil_list_4_position = []
-            unique_index_foil_1 = np.array(tfs_unique_target_1.FOIL)
-            unique_index_foil_4 = np.array(tfs_unique_target_4.FOIL)
-            for i in range(len(tfs_unique_target_1.FOIL)):
-               index_foil_1 = (((tfs_target_1.FOIL[tfs_target_1["FOIL"] == tfs_unique_target_1.FOIL.iloc[i]].index)))
-               index_foil_tolist_1 = index_foil_1.tolist()
-               index_foil_list_1.append(index_foil_tolist_1)
-               index_foil_1_position = (((tfs_target_1_no_reset.FOIL[tfs_target_1_no_reset["FOIL"] == tfs_unique_target_1.FOIL.iloc[i]].index)))
-               index_foil_tolist_1_position = index_foil_1_position.tolist()
-               index_foil_list_1_position.append(index_foil_tolist_1_position)
-            for i in range(len(tfs_unique_target_4.FOIL)): 
-               index_foil_4 = (((tfs_target_4.FOIL[tfs_target_4["FOIL"] == tfs_unique_target_4.FOIL.iloc[i]].index)))
-               index_foil_tolist_4 = index_foil_4.tolist()
-               index_foil_list_4.append(index_foil_tolist_4)
-               index_foil_4_position = (((tfs_target_4_no_reset.FOIL[tfs_target_4_no_reset["FOIL"] == tfs_unique_target_4.FOIL.iloc[i]].index)))
-               index_foil_tolist_4_position = index_foil_4_position.tolist()
-               index_foil_list_4_position.append(index_foil_tolist_4_position)
-            index_foil_sorted_1 = np.sort(index_foil_list_1)
-            index_foil_sorted_4 = np.sort(index_foil_list_4)
-            unique_index_foil_sorted_1 = [unique_index_foil_1 for _,unique_index_foil_1 in sorted(zip(index_foil_list_1,unique_index_foil_1))]
-            unique_index_foil_sorted_4 = [unique_index_foil_4 for _,unique_index_foil_4 in sorted(zip(index_foil_list_4,unique_index_foil_4))]
-            index_foil_sorted_1_position = np.sort(index_foil_list_1_position)
-            index_foil_sorted_4_position = np.sort(index_foil_list_4_position)       
+        elif index.row() in [13,14,15]:      
             if index.row() == 15:
-                print (self.tfs_input)
                 plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_no_std(self,self.tfs_input,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,0) 
             else:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,self.tfs_input,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,1)
-                          #self.sc3.draw()
-              #self.sc3.show()
-              #print (ylabel_d[index.row()-5],file_name_d[index.row()-5],legend_1[index.row()-5],legend_2[index.row()-5])        
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,self.tfs_input,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,1)     
         elif index.row() in [10,11,12]:
-                  self.sc3.axes.clear()
-                  self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names_d[index.row()-6]))
-                  #self.sc3.axes.clear()
-                  print ("FOIL NUMBER")
-                  print (self.tfs_input.FOIL)
-                  tfs_target_1 = ((self.tfs_input[self.tfs_input.TARGET == ("1")]))
-                  tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == ("4")])
-                  tfs_target_1_no_reset = ((self.tfs_input[self.tfs_input.TARGET == ("1")]))
-                  tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == ("4")])
-                  tfs_target_1.reset_index(drop=True, inplace=True)
-                  tfs_target_4.reset_index(drop=True, inplace=True)
-                  tfs_unique_target_1 = (tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-                  tfs_unique_target_4 = (tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-                  if len(tfs_target_1) == 0:
-                      tfs_target_1 = (self.tfs_input[self.tfs_input.TARGET == ("2")])
-                      tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == ("5")])
-                      tfs_target_1.reset_index(drop=True, inplace=True)
-                      tfs_target_4.reset_index(drop=True, inplace=True)
-                      # Same filter but keeping the previous index
-                      tfs_target_1_no_reset = ((self.tfs_input[self.tfs_input.TARGET == ("2")]))
-                      tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == ("5")])
-                      # filtering: removing duplicates from dataframe
-                      tfs_unique_target_1 = (tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-                      tfs_unique_target_4 = (tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-                      print ("THEN YOU ARE HEREE")
-                      print (tfs_target_1)
-                      print (tfs_target_4)
-                  print (tfs_target_1.FOIL)
-                  print (tfs_target_4.FOIL)
-                  print (tfs_unique_target_1.FOIL)
-                  print (tfs_unique_target_4.FOIL)
-                  index_foil_list_1 = []
-                  index_foil_list_4 = []
-                  index_foil_list_1_position = []
-                  index_foil_list_4_position = []
-                  unique_index_foil_1 = np.array(tfs_unique_target_1.FOIL)
-                  unique_index_foil_4 = np.array(tfs_unique_target_4.FOIL)
-                  for i in range(len(tfs_unique_target_1.FOIL)):
-                     index_foil_1 = (((tfs_target_1.FOIL[tfs_target_1["FOIL"] == tfs_unique_target_1.FOIL.iloc[i]].index)))
-                     index_foil_tolist_1 = index_foil_1.tolist()
-                     index_foil_list_1.append(index_foil_tolist_1)
-                     index_foil_1_position = (((tfs_target_1_no_reset.FOIL[tfs_target_1_no_reset["FOIL"] == tfs_unique_target_1.FOIL.iloc[i]].index)))
-                     index_foil_tolist_1_position = index_foil_1_position.tolist()
-                     index_foil_list_1_position.append(index_foil_tolist_1_position)
-                  for i in range(len(tfs_unique_target_4.FOIL)): 
-                     print ("TARGET 4 RESULTS")
-                     print (tfs_unique_target_4.FOIL.iloc[i])
-                     index_foil_4 = (((tfs_target_4.FOIL[tfs_target_4["FOIL"] == tfs_unique_target_4.FOIL.iloc[i]].index)))
-                     print (index_foil_4)
-                     index_foil_tolist_4 = index_foil_4.tolist()
-                     index_foil_list_4.append(index_foil_tolist_4)
-                     index_foil_4_position = (((tfs_target_4_no_reset.FOIL[tfs_target_4_no_reset["FOIL"] == tfs_unique_target_4.FOIL.iloc[i]].index)))
-                     index_foil_tolist_4_position = index_foil_4_position.tolist()
-                     index_foil_list_4_position.append(index_foil_tolist_4_position)
-                  print ("INDEX")
-                  print (index_foil_1_position)
-                  print (index_foil_list_1_position)
-                  index_foil_sorted_1 = np.sort(index_foil_list_1)
-                  index_foil_sorted_4 = np.sort(index_foil_list_4)
-                  unique_index_foil_sorted_1 = [unique_index_foil_1 for _,unique_index_foil_1 in sorted(zip(index_foil_list_1,unique_index_foil_1))]
-                  unique_index_foil_sorted_4 = [unique_index_foil_4 for _,unique_index_foil_4 in sorted(zip(index_foil_list_4,unique_index_foil_4))]
-                  index_foil_sorted_1_position = np.sort(index_foil_list_1_position)
-                  index_foil_sorted_4_position = np.sort(index_foil_list_4_position)
-                  print ("SORTED")
-                  print (unique_index_foil_sorted_1)
-                  print (index_foil_sorted_1)
-                  print (index_foil_sorted_1_position)
-                  if index.row() == 12:
-                     #plotting_summary_files_one_target.generic_plot_no_gap_two_quantities(self,tfs_input,labels_1[index.row()-5],labels_2[index.row()-5],ylabel_d[index.row()-5],file_name_d[index.row()-5],legend_1[index.row()-5],legend_2[index.row()-5],self.output_path) 
-                     plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_with_foil(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)
-                     #self.sc3.draw()
-                  else:
-                     print (labels_1[index.row()-6])
-                     print (labels_2[index.row()-6])
-                     print (ylabel_d[index.row()-6])
-                     print (file_name_d[index.row()-6])
-                     plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_collimators(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)
-
-        
+            if index.row() == 12:
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_with_foil(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)
+            else:
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_collimators(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)       
         else:
-              print ("OR HERE")
-              print (labels_1[index.row()-5])
-              print (labels_2[index.row()-5])
-              print (ylabel_d[index.row()-5],file_name_d[index.row()-5],legend_1[index.row()-5],legend_2[index.row()-5])
-              self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names_d[index.row()-6]))
-              print (summary_file_names_d[index.row()-5])
-              self.sc3.axes.clear()
               if index.row() == 9:
-                   print ("EXTRACTION")
-                   print (self.tfs_input)
                    plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_extraction(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.max_min_value,1,self.flag_no_gap)       
               else: 
-                   print ("HEREEEE")
-                   print (labels_1[index.row()-6])
-                   print (labels_2[index.row()-6])
-                   print (file_name_d[index.row()-6])
                    print (self.tfs_input)
                    plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)       
-
               #self.sc3.draw()
               #self.sc3.show()
         self.sc3.fig.canvas.mpl_connect('pick_event', selecting_trends.onpick_trends)
         self.sc3.draw()
         self.sc3.show()
+
+class plotting_data(editing_table,menus_functions):
+
+    def __init__(self):
+        super(plotting_data, self).__init__()
+        #self.lay = QtWidgets.QVBoxLayout(self.main_widget) 
+        menus.plot_source_actions(self)
+        menus.edit_actions(self)
+        self.plot_actions()
+ 
+    def file_plot(self):
+        file_plots.file_plot(self)
+
+    def plot_actions(self):
+        self.openPlotI.setShortcut('Ctrl+E')
+        self.openPlotI.setStatusTip('Plot files')
+        self.openPlotI.triggered.connect(self.setting_plot_current)
+        self.openPlotIV.triggered.connect(self.setting_plot_vacuum)
+        self.openPlotRF.triggered.connect(self.setting_plot_RF)
+        self.openPlotRFPower.triggered.connect(self.setting_plot_RF_power)
+        self.openPlotM.triggered.connect(self.setting_plot_magnet)      
+        self.openPlotEx.triggered.connect(file_plots.file_plot_extraction)
+        self.openPlotCol.triggered.connect(file_plots.file_plot_collimation)
+        self.openPlotColTarget.triggered.connect(file_plots.file_plot_collimation_target)
+
+    def setting_plot_current(self):
+        self.x_values = self.file_df.Time
+        self.y_values_left = self.file_df.Arc_I.astype(float)
+        self.y_values_right = self.file_df.Arc_V.astype(float)
+        self.label_left = r"Source Voltage [V]"
+        self.label_right = "Source Current [mA]"
+        file_plots.file_plot_one_functions(self)
+
+    def setting_plot_vacuum(self):
+        self.x_values = self.file_df.Time
+        self.y_values_left = self.file_df.Vacuum_P.astype(float)*1e5
+        self.y_values_right = self.file_df.Arc_I.astype(float)
+        self.label_left = r"Vacuum P [$10^{-5}$ mbar]"
+        self.label_right = "Source Current [mA]"
+        file_plots.file_plot_one_functions(self)
+
+    def setting_plot_RF(self):
+        self.x_values = self.file_df.Time 
+        self.y_values_left_1 = self.file_df.Dee_1_kV.astype(float)
+        self.y_values_left_2 = self.file_df.Dee_2_kV.astype(float)
+        self.legend_left_1 = "Dee1"
+        self.legend_left_2 = "Dee2"
+        self.label_left = "Voltage [kV]"
+        self.y_values_right_1 = self.file_df.Flap1_pos.astype(float)
+        self.y_values_right_2 = self.file_df.Flap2_pos.astype(float)
+        self.legend_right_1 = "Flap1"
+        self.legend_right_2 = "Flap2"
+        self.label_right = "Position [%]"
+        file_plots.file_plot_two_functions(self)
+
+    def setting_plot_RF_power(self):
+        self.x_values = self.file_df.Time
+        self.y_values_left_1 = self.file_df.RF_fwd_W.astype(float)
+        self.y_values_left_2 = self.file_df.RF_refl_W.astype(float)
+        self.legend_left_1 = "Forwared"
+        self.legend_left_2 = "Reflected"
+        self.label_left = "Power [kW]"
+        self.y_values_right = self.file_df.Phase_load.astype(float)
+        self.legend_right = "Phase load"
+        self.label_right = "Phase load"
+        file_plots.file_plot_two_one_functions(self)
+
+
+    def setting_plot_magnet(self):
+        self.x_values = self.file_df.Time
+        self.y_values_left = self.file_df.Magnet_I.astype(float)
+        self.df_iso = saving_files_summary_list_20200420.get_isochronism(self.file_df)
+        self.y_values_coll = (self.df_iso.Coll_l_I).astype(float) + (self.df_iso.Coll_r_I).astype(float)
+        self.y_values_target = self.df_iso.Target_I
+        self.y_values_foil = self.df_iso.Foil_I
+        self.y_values_magnet = self.df_iso.Magnet_I
+        self.label_left = r"Magnet current [A]"
+        self.label_right = "Isochronism"
+        file_plots.file_plot_iso_one_functions(self)
+
+    def setting_plot_extraction(self):
+        ...
+
+    def setting_plot_collimation(self):
+        ...
+
+    def setting_plot_collimation_target(self):
+        ...
+ 
+ 
+    #FLAGS
+
+    def flag_max(self):
+        self.max_min_value = 1
+        self.handleSelectionChanged_variabletoplot
+        self.sc3.draw()
+        self.sc3.show()
+
+    def flag_max_reset(self):
+        self.max_min_value = 0
+
+    def flag_target4(self):
+        self.target_4_value = 1
+        
+    def flag_target4_add(self):
+        self.target_4_value = 0
+        
+    def flag_week(self):
+        self.week_value = 1
+        self.day_value = 0
+
+    def flag_day(self):
+        self.week_value = 0
+        self.day_value = 1
+
+    def flag_target1(self):
+        self.target_1_value = 1
+
+    def flag_target1_add(self):
+        self.target_1_value = 0
+        
+    def flag_no_day_gap(self):
+        self.flag_no_gap = 1 
+
+    def flag_day_gap(self):
+        self.flag_no_gap = 0
+
+    # FUNCTIONS USING A CONNECT 
+        
 
 
 if __name__ == "__main__":  # had to add this otherwise app crashed
@@ -604,6 +504,8 @@ if __name__ == "__main__":  # had to add this otherwise app crashed
     def run():
         app = QApplication(sys.argv)
         Gui = window()
+        #Gui_tables = menus_functions()
+        Gui_tabs = plotting_data()      
         sys.exit(app.exec_())
 
 run()

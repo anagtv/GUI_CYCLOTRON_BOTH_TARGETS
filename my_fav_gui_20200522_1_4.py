@@ -157,7 +157,7 @@ class menus_functions(window):
         file_components_columns = [["Current","Voltage","Ratio","Source Performance"],["Pressure"],["Magnet Current"],["Dee Voltage","Power","Flap"],["Caroussel"],["Absolute Collimator","Relative Collimator","Absolute Target","Relative Target","Extraction losses","Transmission"]]
         source_summary_path = os.path.join(self.output_path,file_components[0][0])
         if (os.path.isfile(source_summary_path) == False): 
-            saving_trends.getting_summary(self,self.fileName_individual,self.output_path)
+            saving_trends.getting_summary(self)
         for i in range(len(components)):
           self.tablefiles_tab2.setItem(self.current_row_analysis,0, QTableWidgetItem(components[i]))
           for j in range(len(file_components_columns[i])):          
@@ -223,10 +223,7 @@ class editing_table(window):
         index=(self.tableWidget_logfiles.selectionModel().currentIndex())
         self.fileName=index.sibling(index.row(),index.column()).data()
         self.fileName_folder= index.sibling(index.row(),1499).data()
-        try:
-           self.fileName_completed = os.path.join(self.fileName_folder,self.fileName)
-        except: 
-           self.fileName_completed = ""
+        self.fileName_completed = os.path.join(self.fileName_folder,self.fileName)
         try:
             managing_files.file_open(self)
             managing_files.file_open_summary(self)
@@ -235,17 +232,9 @@ class editing_table(window):
         except:
             # Exception for computing trends
             print ("before the for loop")
-            for index3 in self.tableWidget_logfiles.selectionModel().selectedRows():
-                 print (index3)
-                 print('Row %d is selected' % index3.row())
-                 self.fileName_folder = index.sibling(index.row(),1499).data()
-                 self.fileName_number = self.tableWidget_logfiles.item(index3.row(),1).text()
-                 self.fileName_individual = []
-                 self.fileName_individual.append(self.fileName_folder)
-                 print ("NUMBER OF FILES")
-                 print (self.fileName_number)
-                 for i in range(int(self.fileName_number)):
-                    self.fileName_individual.append(self.tableWidget_logfiles.item(index3.row(),i+2).text())
+            self.fileName_folder = index.sibling(index.row(),1499).data()
+            self.fileName_number = self.tableWidget_logfiles.item(index.row(),1).text()
+            
 
     def onpick(self,event):
          thisline = event.artist
@@ -363,8 +352,6 @@ class editing_table(window):
               else: 
                    print (self.tfs_input)
                    plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)       
-              #self.sc3.draw()
-              #self.sc3.show()
         self.sc3.fig.canvas.mpl_connect('pick_event', selecting_trends.onpick_trends)
         self.sc3.draw()
         self.sc3.show()

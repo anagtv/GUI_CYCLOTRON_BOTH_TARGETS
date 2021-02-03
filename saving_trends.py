@@ -4,21 +4,20 @@ import saving_files_summary_list_20200420
 import managing_files
 import tfs
 
-def getting_summary(self,fileName_individual,output_path):
-        input_path_names = fileName_individual[0]
-        self.fileName_individual.pop(0) 
+def getting_summary(self):
         input_path_filtered = []
         file_path = []
-        for file in (self.fileName_individual):
+        for file in os.listdir(self.fileName_folder):
+            print (file)
             file_path.append(file)
-            input_path_filtered.append(os.path.getsize(os.path.join(input_path_names, file)))
+            input_path_filtered.append(os.path.getsize(os.path.join(self.fileName_folder, file)))
             input_path_filtered_array = np.array(input_path_filtered)
         file_path_array = np.array(file_path)
         file_path_array_max = file_path_array[input_path_filtered_array > 0.1*max(input_path_filtered_array)]
         possible_normal = []
         possible_pre_irradiation = []
         for file in file_path_array_max:
-            file_path = os.path.join(input_path_names, file)
+            file_path = os.path.join(self.fileName_folder, file)
             [target_number,date_stamp,name,file_number] = saving_files_summary_list_20200420.get_headers(file_path)
             real_values = saving_files_summary_list_20200420.get_irradiation_information(file_path)
             # Get the dataframe from logfile 
@@ -32,7 +31,7 @@ def getting_summary(self,fileName_individual,output_path):
                 possible_normal.append(file)
         reasons_small_file = []
         for file in (possible_normal):
-            self.fileName_completed = os.path.join(input_path_names, file)
+            self.fileName_completed = os.path.join(self.fileName_folder, file)
             managing_files.file_open(self)
             managing_files.file_open_summary(self)
             # GETTING STADISTIC NUMBERS

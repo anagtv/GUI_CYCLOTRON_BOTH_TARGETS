@@ -21,22 +21,22 @@ def file_open(self):
         self.df_subsystem_beam = saving_files_summary_list_20200420.get_subsystems_dataframe_beam(self.file_df,self.max_current,self.target_number,self.target_current,self.time,self.foil_number)
         self.df_subsystem_pressure = saving_files_summary_list_20200420.get_subsystems_dataframe_pressure(self.file_df,self.max_current,self.target_number,self.target_current,self.time,self.foil_number)  
         self.df_isochronism = saving_files_summary_list_20200420.get_isochronism(self.file_df)
-        [self.probe_current,self.ion_source_current,self.source_performance] = saving_files_summary_list_20200420.get_ion_source_performance(self.file_df) #  
+        [self.probe_current,self.ion_source_current,self.source_performance,self.source_performance_std] = saving_files_summary_list_20200420.get_ion_source_performance(self.file_df) #  
         print ("FINALLY HERE")
         print (self.probe_current)     
         print (self.df_subsystem_source)
         # Adds dataframe to previous dataframes in case it has been already oppened,
 
 def file_open_summary(self):
-        self.df_source = saving_files_summary_list_20200420.get_summary_ion_source(self.df_subsystem_source,self.source_performance,str(self.fileName_completed.split("/")[-1]),self.target_number[1],self.date_stamp,self.df_source)
-        self.df_vacuum = saving_files_summary_list_20200420.get_summary_vacuum(self.df_subsystem_vacuum,str(self.fileName_completed.split("/")[-1]),self.target_number[1],self.date_stamp,self.df_vacuum)
-        self.df_magnet = saving_files_summary_list_20200420.get_summary_magnet(self.df_subsystem_magnet,str(self.fileName_completed.split("/")[-1]),self.target_number[1],self.date_stamp,self.df_magnet)
-        self.df_rf = saving_files_summary_list_20200420.get_summary_rf(self.df_subsystem_rf,str(self.fileName_completed.split("/")[-1]),self.target_number[1],self.date_stamp,self.df_rf)
-        self.df_extraction = saving_files_summary_list_20200420.get_summary_extraction(self.df_subsystem_extraction,str(self.fileName_completed.split("/")[-1]),self.target_number[1],self.date_stamp,self.df_extraction)
-        self.df_beam = saving_files_summary_list_20200420.get_summary_beam(self.df_subsystem_beam,str(self.fileName_completed.split("/")[-1]),self.target_number[1],self.date_stamp,self.df_beam)
-        self.df_transmission = saving_files_summary_list_20200420.get_transmission(self.df_isochronism,self.probe_current,self.df_subsystem_source,str(self.file_number),self.target_number[1],self.date_stamp,self.df_transmission)
-        self.df_pressure_fluctuations = saving_files_summary_list_20200420.get_pressure_fluctuations(self.file_df,self.target_number[1],0,str(self.file_number),self.date_stamp,self.df_pressure_fluctuations)
-        self.df_filling_volume = saving_files_summary_list_20200420.get_filling_volume(self.file_df,self.target_number[1],0,str(self.file_number),self.date_stamp,self.df_filling_volume) 
+        self.df_source = saving_files_summary_list_20200420.get_summary_ion_source(self.df_subsystem_source,self.source_performance,self.source_performance_std,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_source)
+        self.df_vacuum = saving_files_summary_list_20200420.get_summary_vacuum(self.df_subsystem_vacuum,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_vacuum)
+        self.df_magnet = saving_files_summary_list_20200420.get_summary_magnet(self.df_subsystem_magnet,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_magnet)
+        self.df_rf = saving_files_summary_list_20200420.get_summary_rf(self.df_subsystem_rf,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_rf)
+        self.df_extraction = saving_files_summary_list_20200420.get_summary_extraction(self.df_subsystem_extraction,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_extraction)
+        self.df_beam = saving_files_summary_list_20200420.get_summary_beam(self.df_subsystem_beam,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_beam)
+        self.df_transmission = saving_files_summary_list_20200420.get_transmission(self.df_isochronism,self.probe_current,self.df_subsystem_source,str(int(self.file_number)),self.target_number[1],self.date_stamp,self.df_transmission)
+        self.df_pressure_fluctuations = saving_files_summary_list_20200420.get_pressure_fluctuations(self.file_df,self.target_number[1],0,str(int(self.file_number)),self.date_stamp,self.df_pressure_fluctuations)
+        self.df_filling_volume = saving_files_summary_list_20200420.get_filling_volume(self.file_df,self.target_number[1],0,str(int(self.file_number)),self.date_stamp,self.df_filling_volume) 
         self.voltage_limit = (0.8*(self.df_rf.DEE1_VOLTAGE_AVE))       
         self.voltage_dee_1 = self.df_subsystem_rf_sparks.Dee_1_kV[self.df_subsystem_rf_sparks.Dee_1_kV < float(self.voltage_limit.iloc[self.current_row])]
         self.voltage_dee_2 = self.df_subsystem_rf_sparks.Dee_2_kV[self.df_subsystem_rf_sparks.Dee_2_kV < float(self.voltage_limit.iloc[self.current_row])]

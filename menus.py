@@ -43,8 +43,6 @@ def plot_menu(self):
         self.openPlotCol = QAction('&Plot Collimators',self)
         self.openPlotColTarget = QAction('&Plot Target/Collimators',self)
     
-
-
 def adding_plot_actions(self):
         editorMenu = self.mainMenu.addMenu('&Plot Individual Files')
         editorMenu.addAction(self.openPlotI)
@@ -64,7 +62,6 @@ def plot_menu_source(self):
         self.openPlotI.setShortcut('Ctrl+E')
         self.openPlotI.setStatusTip('Plot files')
 
-
 def plot_source_actions(self):
         self.openPlotI_S.triggered.connect(file_plots.file_plot_collimators_source)
         self.openPlotIV_S.triggered.connect(file_plots.file_plot_vacuum_source)
@@ -79,6 +76,7 @@ def adding_plot_source(self):
         editorMenu_S.addAction(self.openPlotEx_S)
 
 def edit_menu(self):
+        self.plotMenu = self.mainMenu.addMenu('&Edit Trends Plots')
         self.editplotmax = QAction('&Remove Max/Min Values',self)
         self.resetplotmax = QAction('&Add Max/Min Values',self)
         self.editplottarget1 = QAction('&Remove Target 1',self)
@@ -90,20 +88,8 @@ def edit_menu(self):
         self.editplottime = QAction('&Add day gap',self)
         self.editplottime_remove = QAction('&Remove day gap',self)
 
-def edit_actions(self):      
-        self.editplotmax.triggered.connect(self.flag_max)
-        self.resetplotmax.triggered.connect(self.flag_max_reset)
-        self.editplottarget1.triggered.connect(self.flag_target1)
-        self.editplottarget4.triggered.connect(self.flag_target4)
-        self.editplottarget1_add.triggered.connect(self.flag_target1_add)
-        self.editplottarget4_add.triggered.connect(self.flag_target4_add)
-        self.editplotweek.triggered.connect(self.flag_week)
-        self.editplotday.triggered.connect(self.flag_day)
-        self.editplottime.triggered.connect(self.flag_day_gap)
-        self.editplottime_remove.triggered.connect(self.flag_no_day_gap)
 
 def adding_edit_actions(self):
-        self.plotMenu = self.mainMenu.addMenu('&Edit Trends Plots')
         self.plotMenu.addAction(self.editplottime)
         self.plotMenu.addAction(self.editplottime_remove)
         self.plotMenu.addAction(self.editplotmax)

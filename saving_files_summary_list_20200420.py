@@ -152,6 +152,7 @@ def get_pressure_fluctuations(data_df,target_number,va,file,date_stamp,df_pressu
 def get_transmission(df_isochronism,probe_current,df_subsystem_source,file,target_number,date_stamp,df_transmission):
     foil_current_max_isochronism = np.max(df_isochronism.Foil_I)/probe_current
     transmission = foil_current_max_isochronism*100
+    transmission_std = float(0)
     print ("ISOCHRONISMMM")
     print (df_isochronism)
     print (df_isochronism.Foil_I)
@@ -163,7 +164,7 @@ def get_transmission(df_isochronism,probe_current,df_subsystem_source,file,targe
     print ("TRANSMISSION")
     print (transmission)
     foil_number = np.average(df_subsystem_source.Foil_No)
-    transmission_list = [[np.float(file),date_stamp,target_number,transmission,foil_number]] 
+    transmission_list = [[np.float(file),date_stamp,target_number,transmission,transmission_std,foil_number]] 
     print (transmission_list)
     df_transmission_i = pd.DataFrame((transmission_list),columns=columns_names.COLUMNS_TRANSMISSION)      
     df_transmission = df_transmission.append(df_transmission_i,ignore_index=True)
@@ -223,13 +224,14 @@ def get_ion_source_performance(data_df):
         probe_current = float(data_df.Probe_I[intial_index])
     ion_source_current = float(data_df.Arc_I[intial_index])   
     source_performance = (float(probe_current)/float(ion_source_current))
+    source_performance_std = float(0)
     df_column_ion_source_performance = ["Ion_source_I","Probe_stable_I","Source_performance"]
     subsystem_source_performance = [ion_source_current,probe_current,source_performance]
     print ("SOURCE PERFORMANCE!!!!!!!")
     print (source_performance)
     print (subsystem_source_performance)
     print (minimum_value_str,maximum_value_str)
-    return probe_current,ion_source_current,source_performance
+    return probe_current,ion_source_current,source_performance,source_performance_std 
 
 def get_foil_number(excel_data_df,current):
     foil_number = excel_data_df.Foil_No[excel_data_df['Target_I'].astype(float) > float(current)].astype(int)
@@ -424,18 +426,7 @@ def get_plots_one_functions_all(self,function1,time,label1,ylabel1,pn):
     #self.sc1.axes[pn].set_yticks([0.9*min_value,1.1*max_value])
     self.sc1.axes[pn].tick_params(labelsize=10)
 
-def get_plots_tunning(self,current_col,current_target,current_foil,magnet_current,pn):
-    self.sc1.axes[pn].plot(magnet_current,current_col,'o',label="Collimators",picker=5)
-    self.sc1.axes[pn].plot(magnet_current,current_target,'o',label="Target",picker=5)
-    self.sc1.axes[pn].plot(magnet_current,current_foil,'o',label="Foil",picker=5)
-    #self.sc1.axes[pn].plot(time,function2,label=file_names[1])
-    self.sc1.axes[pn].legend(loc='best',ncol=5,fontsize=10)
-    self.sc1.axes[pn].set_xlabel("Magnet Current [A]",fontsize=10)
-    self.sc1.axes[pn].set_ylabel(str(r"Current [$\mu$A]"),fontsize=10)
-    print ("HEREEEEEEE")
-    ##print (ticks_to_use_list)
-    print (magnet_current)
-    self.sc1.axes[pn].tick_params(labelsize=10)
+
 
 def getting_average_values(file_name):
     [real_values,target_number,date_stamp ] = get_data_tuple(file_name)
@@ -533,7 +524,7 @@ def get_subsystems_dataframe_pressure(excel_data_df,current,target_number,target
     return df_subsystem_pressure
 
 
-def get_summary_ion_source(df_subsystems_source,source_performance,file,target_number,date_stamp,df_source): 
+def get_summary_ion_source(df_subsystems_source,source_performance,source_performance_std,file,target_number,date_stamp,df_source): 
     source_current = df_subsystems_source.Arc_I
     source_voltage = df_subsystems_source.Arc_V
     gas_flow = df_subsystems_source.Gas_flow
@@ -550,7 +541,7 @@ def get_summary_ion_source(df_subsystems_source,source_performance,file,target_n
     float(max_source_voltage),float(min_source_voltage),float(ave_source_voltage),float(std_source_voltage),
     float(max_gas_flow),
     float(max_ratio_current),float(min_ratio_current),float(ave_ratio_current),float(std_ratio_current),float(source_performance)
-    ]]
+    ,float(source_performance_std)]]
     df_source_i = pd.DataFrame(df_source_values,columns=columns_names.COLUMNS_SOURCE)
     df_source = df_source.append(df_source_i,ignore_index=True)
     return df_source

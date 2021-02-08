@@ -99,20 +99,14 @@ class menus_functions(window):
         # STARTING MENUS
         menus.open_menu(self)
         menus.open_menu_actions(self)
-        #
         menus.edit_menu(self)
-        #
         menus.plot_menu(self)
-        #
         menus.plot_menu_source(self)
-        #
         menus.remove_menu(self)
-        #
         menus.adding_open_actions(self)
         menus.adding_edit_actions(self)
         menus.adding_plot_actions(self)
         menus.adding_plot_source(self)
-        #
 
      
     def file_open_message(self,values):
@@ -203,12 +197,8 @@ class editing_table(window):
     def handleSelectionFile(self):
         index=(self.tableWidget.selectionModel().currentIndex())
         self.fileName = index.sibling(index.row(),18).data()
-        print ("FILENAME")
-        print (self.fileName)
         self.row_to_plot = index.row()
         managing_files.file_open(self)
-        print ("dataframe")
-        print (self.file_df)
 
     def folder_analyze(self,values):
         #When pressed on Cyclotron trends
@@ -247,9 +237,8 @@ class editing_table(window):
          self.irradiation_values = saving_files_summary_list_20200420.get_irradiation_information(str(self.fileName))
          self.file_df = saving_files_summary_list_20200420.get_data(self.irradiation_values)
          [target_current,current] = saving_files_summary_list_20200420.get_target_parameters(self.file_df)
-         time = saving_files_summary_list_20200420.get_time(self.file_df,current)
+         #time = saving_files_summary_list_20200420.get_time(self.file_df,current)
          foil_number = saving_files_summary_list_20200420.get_foil_number(self.file_df,current) 
-         #df_subsystem_beam = saving_files_summary_list_20200420.get_subsystems_dataframe_beam(self.file_df,current,self.target_number,target_current,time,foil_number)
          self.table_summary_log.setItem(0,1, QTableWidgetItem(str(self.file_df.Time.iloc[self.coordinates_x])))
          self.table_summary_log.setItem(1,1, QTableWidgetItem(str(self.file_df.Vacuum_P.astype(float).iloc[self.coordinates_x]*1e5)))
          function_names = [self.file_df.Magnet_I,self.file_df.Arc_I,self.file_df.Dee_1_kV,self.file_df.Dee_2_kV,
@@ -261,100 +250,214 @@ class editing_table(window):
             self.table_summary_log.setItem(i,1, QTableWidgetItem(str(function_names[i-2][self.coordinates_x])))
          for i in range (17,20):
             self.table_summary_log.setItem(17,1, QTableWidgetItem(str(round(function_names[i-2][self.coordinates_x],2))))
-         #self.table_summary_log.setItem(18,1, QTableWidgetItem(str(round(self.df_subsystem_beam.Coll_r_rel[self.coordinates_x],2))))
-         #self.table_summary_log.setItem(19,1, QTableWidgetItem(str(round(self.df_subsystem_beam.Target_rel[self.coordinates_x],2))))
          self.current_row_statistics += 1
 
+    def onpick_trends(self,event):
+         thisline = event.artist
+         xdata = thisline.get_xdata()
+         ydata = thisline.get_ydata()
+         ind = event.ind
+         self.coordinates_x = xdata[ind][0]
+         self.tablestatistic_tab2.setItem(0,0, QTableWidgetItem(str("CYCLOTRON")))
+         #self.tablestatistic_tab2.setItem(0,1, QTableWidgetItem(self.name))
+         self.tablestatistic_tab2.setItem(1,1, QTableWidgetItem(str(self.tfs_input.DATE.iloc[self.coordinates_x][5:])))
+         self.tablestatistic_tab2.setItem(2,1, QTableWidgetItem(str(self.tfs_input.FILE.iloc[self.coordinates_x])))
+         self.tablestatistic_tab2.setItem(3,1, QTableWidgetItem(str(self.tfs_input.FOIL.iloc[self.coordinates_x])))
+         self.tablestatistic_tab2.setItem(1,0, QTableWidgetItem(str("DATE")))
+         self.tablestatistic_tab2.setItem(2,0, QTableWidgetItem(str("FILE")))
+         self.tablestatistic_tab2.setItem(3,0, QTableWidgetItem(str("FOIL")))
+         index = ((self.tablefiles_tab2.selectionModel().currentIndex()))
+         COLUMNS_MAGNET = ["CURRENT_AVE","CURRENT_STD"]
+         COLUMNS_RF =  ["DEE1_VOLTAGE_AVE","DEE1_VOLTAGE_STD","DEE2_VOLTAGE_AVE","DEE2_VOLTAGE_STD",
+            "FORWARD_POWER_AVE","FORWARD_POWER_STD","REFLECTED_POWER_AVE","REFLECTED_POWER_STD"]
+         COLUMNS_BEAM = ["COLL_CURRENT_L_STD","COLL_CURRENT_R_AVE","COLL_CURRENT_R_STD",
+            "RELATIVE_COLL_CURRENT_L_AVE","RELATIVE_COLL_CURRENT_L_STD",
+            "RELATIVE_COLL_CURRENT_R_AVE","RELATIVE_COLL_CURRENT_R_STD",
+             "TARGET_CURRENT_AVE","TARGET_CURRENT_STD",
+             "FOIL_CURRENT_AVE","FOIL_CURRENT_STD",
+             "EXTRACTION_LOSSES_AVE","EXTRACTION_LOSSES_STD"]
+         COLUMNS_EXTRACTION = ["CAROUSEL_POSITION_AVE","CAROUSEL_POSITION_STD","BALANCE_POSITION_AVE","BALANCE_POSITION_STD"]
+         if index.row() in [0,1,2]:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("CURRENT [mA]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem(str("VOLTAGE [V]")))
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem(str("RATIO [mA/uA]")))
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            current_value = str(round(self.tfs_input.CURRENT_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.CURRENT_STD.iloc[self.coordinates_x],1))
+            voltage_value = str(round(self.tfs_input.VOLTAGE_AVE.iloc[self.coordinates_x],1)) + "+-"+ str(round(self.tfs_input.VOLTAGE_STD.iloc[self.coordinates_x],1))
+            ratio_value = str(round(self.tfs_input.RATIO_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.RATIO_STD.iloc[self.coordinates_x],1))
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(current_value))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem(voltage_value))
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem(ratio_value))
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+         elif index.row() == 4:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("PRESSURE [10-5 mbar]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            vacuum_value = str(round(self.tfs_input.PRESSURE_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.PRESSURE_STD.iloc[self.coordinates_x],1))
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(vacuum_value))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+         elif index.row() == 5:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("MAGNET CURRENT [A]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            current_value = str(round(self.tfs_input.CURRENT_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.CURRENT_STD.iloc[self.coordinates_x],1))
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(current_value))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+         elif index.row() in [6,7,8]:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("DEE1 VOLTAGE [kV]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem(str("DEE2 VOLTAGE [kV]")))
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem(str("FORWARDED POWER [kW]")))
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem(str("REFLECTED POWER [kW]")))
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem(str("FLAP1 POSITION [%]")))
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem(str("FLAP2 POSITION [%]")))
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            dee1_voltage_value = str(round(self.tfs_input.DEE1_VOLTAGE_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.DEE1_VOLTAGE_STD.iloc[self.coordinates_x],1))
+            dee2_voltage_value = str(round(self.tfs_input.DEE2_VOLTAGE_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.DEE2_VOLTAGE_STD.iloc[self.coordinates_x],1))
+            for_power_value = str(round(self.tfs_input.FORWARD_POWER_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.FORWARD_POWER_STD.iloc[self.coordinates_x],1))
+            ref_power_value = str(round(self.tfs_input.REFLECTED_POWER_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.REFLECTED_POWER_STD.iloc[self.coordinates_x],1))
+            flap1_pos_value = str(round(self.tfs_input.FLAP1_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.FLAP1_STD.iloc[self.coordinates_x],1))
+            flap2_pos_value = str(round(self.tfs_input.FLAP2_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.FLAP2_STD.iloc[self.coordinates_x],1))
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(dee1_voltage_value))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem(dee2_voltage_value))
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem(for_power_value))
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem(ref_power_value))
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem(flap1_pos_value))
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem(flap2_pos_value))
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+         elif index.row() == 9:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("CAROUSSEL [%]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem(str("BALANCE [%]")))
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            caroussel_value = str(round(self.tfs_input.CAROUSEL_POSITION_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.CAROUSEL_POSITION_STD.iloc[self.coordinates_x],1))
+            balance_value = str(round(self.tfs_input.BALANCE_POSITION_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.BALANCE_POSITION_STD.iloc[self.coordinates_x],1)) 
+            print ("HEREEEEEEEEEE")
+            print (caroussel_value)
+            print (balance_value)         
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(caroussel_value))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem(balance_value))
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+         elif index.row() in [10,11,12,13]:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("COLLIMATORS CURRENT L [uA]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem(str("COLLIMATORS CURRENT R [uA]")))
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem(str("COLLIMATORS [uA]")))
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem(str("COLLIMATORS CURRENT REL L[%]")))
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem(str("COLLIMATORS CURRENT REL R[%]")))
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem(str("COLLIMATORS[%]")))
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem(str("TARGET CURRENT [uA]")))
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem(str("FOIL CURRENT [uA]")))
+            coll_current_value_l = str(round(self.tfs_input.COLL_CURRENT_L_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.COLL_CURRENT_L_STD.iloc[self.coordinates_x],1))
+            coll_current_value_r = str(round(self.tfs_input.COLL_CURRENT_R_AVE.iloc[self.coordinates_x],1)) + "+- " + str(round(self.tfs_input.COLL_CURRENT_R_STD.iloc[self.coordinates_x],1))
+            coll_current_rel_value_l = str(round(self.tfs_input.RELATIVE_COLL_CURRENT_L_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.RELATIVE_COLL_CURRENT_L_STD.iloc[self.coordinates_x],1))
+            coll_current_rel_value_r = str(round(self.tfs_input.RELATIVE_COLL_CURRENT_R_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.RELATIVE_COLL_CURRENT_R_STD.iloc[self.coordinates_x],1))
+            coll_current = str(round(self.tfs_input.COLL_CURRENT_L_AVE.iloc[self.coordinates_x] + self.tfs_input.COLL_CURRENT_R_AVE.iloc[self.coordinates_x],1) ) + "+-" + str(round(self.tfs_input.COLL_CURRENT_L_STD.iloc[self.coordinates_x] + self.tfs_input.COLL_CURRENT_R_STD.iloc[self.coordinates_x] ,1))
+            coll_current_rel = str(round(self.tfs_input.COLL_CURRENT_L_AVE.iloc[self.coordinates_x] + self.tfs_input.COLL_CURRENT_R_AVE.iloc[self.coordinates_x],1) ) + "+-" + str(round(self.tfs_input.COLL_CURRENT_L_STD.iloc[self.coordinates_x] + self.tfs_input.COLL_CURRENT_R_STD.iloc[self.coordinates_x] ,1))
+            target_current_value = str(round(self.tfs_input.TARGET_CURRENT_AVE.iloc[self.coordinates_x],1)) + " " + str(round(self.tfs_input.TARGET_CURRENT_STD.iloc[self.coordinates_x],1))
+            target_current_rel_value = str(round(self.tfs_input.RELATIVE_TARGET_CURRENT_AVE.iloc[self.coordinates_x],1)) + "+-" + str(round(self.tfs_input.RELATIVE_TARGET_CURRENT_STD.iloc[self.coordinates_x],1))
+            foil_current_value = str(round(self.tfs_input.FOIL_CURRENT_AVE.iloc[self.coordinates_x],1)) + "+- " + str(round(self.tfs_input.FOIL_CURRENT_STD.iloc[self.coordinates_x],1))
+            extraction_losses_value = str(round(self.tfs_input.EXTRACTION_LOSSES_AVE.iloc[self.coordinates_x],1)) + "+- " + str(round(self.tfs_input.EXTRACTION_LOSSES_STD.iloc[self.coordinates_x],1))
+            print ("HEREEEEEE")
+            print (coll_current)
+            print (coll_current_rel)
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(coll_current_value_l))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem(coll_current_value_r))
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem(coll_current))
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem(coll_current_rel_value_l))
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem(coll_current_rel_value_r))
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem(coll_current_rel))
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem(target_current_value))
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem(foil_current_value))
+         elif index.row() in [14]:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("EXTRACTION LOSSES [%]")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            extraction_losses_value = str(round(self.tfs_input.EXTRACTION_LOSSES_AVE.iloc[self.coordinates_x],1)) + "+- " + str(round(self.tfs_input.EXTRACTION_LOSSES_STD.iloc[self.coordinates_x],1))
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(extraction_losses_value))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+         elif index.row() in [15]:
+            self.tablestatistic_tab2.setItem(4,0, QTableWidgetItem(str("TRANSMISSION")))
+            self.tablestatistic_tab2.setItem(5,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,0, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,0, QTableWidgetItem())
+            transmission = str(round(self.tfs_input.TRANSMISSION.iloc[self.coordinates_x],1))
+            self.tablestatistic_tab2.setItem(4,1, QTableWidgetItem(transmission))
+            self.tablestatistic_tab2.setItem(5,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(6,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(7,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(8,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(9,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(10,1, QTableWidgetItem())
+            self.tablestatistic_tab2.setItem(11,1, QTableWidgetItem())
+
     def handleSelectionChanged_variabletoanalyze(self):
-        index=(self.tablefiles_tab2.selectionModel().currentIndex())
-        self.fileName=index.sibling(index.row(),index.column()).data()
-
-
-    def selecting_data_to_plot_reset(self):
-        self.tfs_target_1 = (self.tfs_input[self.tfs_input.TARGET == self.target_1])
-        self.tfs_target_4 = (self.tfs_input[self.tfs_input.TARGET == self.target_2])
-        self.tfs_target_1_no_reset = (self.tfs_input[self.tfs_input.TARGET == self.target_1])
-        self.tfs_target_4_no_reset = (self.tfs_input[self.tfs_input.TARGET == self.target_2])
-        self.tfs_unique_target_1 = (self.tfs_target_1.drop_duplicates(subset="FOIL",keep = "first"))
-        self.tfs_unique_target_4 = (self.tfs_target_4.drop_duplicates(subset="FOIL",keep = "first"))
-        self.tfs_target_1.reset_index(drop=True, inplace=True)
-        self.tfs_target_4.reset_index(drop=True, inplace=True)
-
-    def getting_position(tfs_target,tfs_unique_target):
-        index_foil = (((tfs_target.FOIL[tfs_target["FOIL"] == tfs_unique_target.FOIL.iloc[i]].index))).tolist()
-        return index_foil
-
-    def foil_research(self,tfs_target,tfs_target_no_reset,tfs_unique_target):
-        index_foil_list = []
-        index_foil_list_position = []
-        unique_index_foil = np.array(tfs_unique_target.FOIL)
-        for i in range(len(tfs_unique_target.FOIL)):
-           # get all the positions where a given foil is and convert to a list (TARGET 1)
-           positions = tfs_target.FOIL[tfs_target["FOIL"] == tfs_unique_target.FOIL.iloc[i]]
-           index_foil = getting_position(tfs_target,tfs_unique_target)
-           index_foil_position = getting_position(tfs_target_no_reset,tfs_unique_target)
-           # list of positions within the dataframe T1
-           index_foil_list.append(index_foil_tolist)
-           # list of positions in the original dataframe
-           index_foil_list_position.append(index_foil_position_tolist)
-        return index_foil_list,index_foil_list_position,unique_index_foil
-
-    def handleSelectionChanged_variabletoplot(self):
         summary_file_names = ["table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_vacuum.out","table_summary_magnet.out",
         "table_summary_rf.out","table_summary_rf.out","table_summary_rf.out","table_summary_extraction.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out",
         "table_summary_transmission.out"]
-        labels = ["CURRENT_","VOLTAGE_","RATIO_","SOURCE_PERFORMANCE","PRESSURE_","CURRENT_","RELATIVE_TARGET_CURRENT_","EXTRACTION_LOSSES_","TRANSMISSION"]
-        labels_1 = ["DEE1_VOLTAGE_","FORWARD_POWER_","FLAP1_","CAROUSEL_POSITION_","COLL_CURRENT_L_","RELATIVE_COLL_CURRENT_L_","TARGET_CURRENT_"]
-        labels_2 = ["DEE2_VOLTAGE_","REFLECTED_POWER_","FLAP2_","BALANCE_POSITION_","COLL_CURRENT_R_","RELATIVE_COLL_CURRENT_R_","FOIL_CURRENT_"]
-        ylabel = ["CURRENT [mA]","VOLTAGE [V]",r"RATIO [mA/$\mu A$]",r"RATIO [$\mu A$/mA]",r"PRESSURE [$10^{-5}$mbar]","MAGNET CURRENT [A]",r"RELATIVE CURRENT (FOIL)[%]","LOSSES [%]",r"TRANSMISSION RATE [($\mu A$ Foil/$\mu A$ Probe) %]"]
-        ylabel_d = ["AVERAGE VOLTAGE [kV]",r"AVERAGE POWER [kW]",r"AVERAGE POSITION [%]",r"POSITION [%]",r"CURRENT [$\mu A$]",r"RELATIVE CURRENT [%]",r"AVERAGE CURRENT [$\mu$A]"]
-        file_name = ["ion_source_evolution.pdf","voltage_evolution.pdf","ratio_evolution.pdf","source_performance.pdf","vacuum_evolution.pdf","magnet_evolution.pdf","relative_currents_foil.pdf","efficiency_target_evolution.pdf","transmission.pdf"]
-        file_name_d = ["dee1_dee2_voltage_evolution.pdf","power_evolution.pdf","flap_evolution.pdf","carousel_balance_evolution.pdf","collimator_current_evolution.pdf","absolute_collimator_current_evolution.pdf","target_foil_evolution.pdf"]
-        legend = ["T","T","T","T","T","T","T","T","T"]
-        legend_1 = ["DEE1 T","FORWARDED T","FLAP 1 T","CAROUSEL T","COLLIMATOR  T","COLLIMATOR  T","TARGET T","COLLIMATOR L T","TARGET T"]
-        legend_2 = ["DEE2 T","REFELECTED T","FLAP 2 T","BALANCE T","COLLIMATOR  T","COLLIMATOR  T","FOIL T","COLLIMATOR R T","FOIL T"]
         index=(self.tablefiles_tab2.selectionModel().currentIndex())
-        self.fileName=index.sibling(index.row(),index.column()).data()
-        self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names[index.row()]))
-        print (self.tfs_input)
-        self.target_2 = int(np.max(self.tfs_input.TARGET))-3
-        self.target_1 = self.target_2-3
-        self.sc3.axes.clear()  
-        self.selecting_data_to_plot_reset()    
-        index_foil_list_1,index_foil_list_1_position,unique_index_foil_1 = self.foil_research(self.tfs_target_1,self.tfs_target_1_no_reset,self.tfs_unique_target_1)
-        index_foil_list_4,index_foil_list_4_position,unique_index_foil_4 = self.foil_research(self.tfs_target_1,self.tfs_target_1_no_reset,self.tfs_unique_target_1)
-        unique_index_foil_sorted_1 = [unique_index_foil_1 for _,unique_index_foil_1 in sorted(zip(index_foil_list_1,unique_index_foil_1))]
-        unique_index_foil_sorted_4 = [unique_index_foil_4 for _,unique_index_foil_4 in sorted(zip(index_foil_list_4,unique_index_foil_4))]
-        index_foil_sorted_1 = np.sort(index_foil_list_1)
-        index_foil_sorted_4 = np.sort(index_foil_list_4)
-        index_foil_sorted_1_position = np.sort(index_foil_list_1_position)
-        index_foil_sorted_4_position = np.sort(index_foil_list_4_position)     
-        if index.row() in range(6):    
-            if index.row() == 4:
-                  plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie(self,self.tfs_input,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,0,self.flag_no_gap,1)
-            elif index.row() == 3: 
-                  plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_no_std(self,self.tfs_input,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,0,self.flag_no_gap,1)
-            else:
-                  plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,self.tfs_input,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,1)        
-        elif index.row() in [13,14,15]:      
-            if index.row() == 15:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_no_std(self,self.tfs_input,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,0) 
-            else:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,self.tfs_input,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.max_min_value,self.target_1_value,self.target_4_value,self.week_value,1,self.flag_no_gap,1)     
-        elif index.row() in [10,11,12]:
-            if index.row() == 12:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_with_foil(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)
-            else:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_collimators(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],index_foil_sorted_1,unique_index_foil_sorted_1,index_foil_sorted_4,unique_index_foil_sorted_4,index_foil_sorted_1_position,index_foil_sorted_4_position,self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)       
-        else:
-              if index.row() == 9:
-                   plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities_extraction(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.max_min_value,1,self.flag_no_gap)       
-              else: 
-                   print (self.tfs_input)
-                   plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,self.tfs_input,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],file_name_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],self.output_path,self.target_1_value,self.target_4_value,self.week_value,self.flag_no_gap)       
-        self.sc3.fig.canvas.mpl_connect('pick_event', selecting_trends.onpick_trends)
-        self.sc3.draw()
-        self.sc3.show()
+        #self.fileName=index.sibling(index.row(),index.column()).data()
+        print ("FILE OPENING")
+        print (index.row())
+        print (self.output_path)
+        print (os.path.join(self.output_path,summary_file_names[index.row()]))
+        self.fileName = os.path.join(self.output_path,summary_file_names[index.row()])
+
+
 
 class plotting_data(editing_table,menus_functions):
 
@@ -362,7 +465,8 @@ class plotting_data(editing_table,menus_functions):
         super(plotting_data, self).__init__()
         #self.lay = QtWidgets.QVBoxLayout(self.main_widget) 
         menus.plot_source_actions(self)
-        menus.edit_actions(self)
+        #menus.edit_actions(self)
+        self.edit_actions()
         self.plot_actions()
  
     def file_plot(self):
@@ -379,6 +483,19 @@ class plotting_data(editing_table,menus_functions):
         self.openPlotEx.triggered.connect(file_plots.file_plot_extraction)
         self.openPlotCol.triggered.connect(file_plots.file_plot_collimation)
         self.openPlotColTarget.triggered.connect(file_plots.file_plot_collimation_target)
+
+    def edit_actions(self):      
+        self.editplotmax.triggered.connect(self.flag_max)
+        self.resetplotmax.triggered.connect(self.flag_max_reset)
+        self.editplottarget1.triggered.connect(self.flag_target1)
+        self.editplottarget4.triggered.connect(self.flag_target4)
+        self.editplottarget1_add.triggered.connect(self.flag_target1_add)
+        self.editplottarget4_add.triggered.connect(self.flag_target4_add)
+        self.editplotweek.triggered.connect(self.flag_week)
+        self.editplotday.triggered.connect(self.flag_day)
+        self.editplottime.triggered.connect(self.flag_day_gap)
+        self.editplottime_remove.triggered.connect(self.flag_no_day_gap)
+
 
     def setting_plot_current(self):
         self.x_values = self.file_df.Time
@@ -448,42 +565,162 @@ class plotting_data(editing_table,menus_functions):
     #FLAGS
 
     def flag_max(self):
-        self.max_min_value = 1
-        self.handleSelectionChanged_variabletoplot
-        self.sc3.draw()
-        self.sc3.show()
+        print ("HEREEEEEEEEE MAX")
+        self.max_min_value = "1"
 
     def flag_max_reset(self):
-        self.max_min_value = 0
-
-    def flag_target4(self):
-        self.target_4_value = 1
-        
-    def flag_target4_add(self):
-        self.target_4_value = 0
-        
-    def flag_week(self):
-        self.week_value = 1
-        self.day_value = 0
-
-    def flag_day(self):
-        self.week_value = 0
-        self.day_value = 1
+        print ("HEREEEEE MAX RESET")
+        self.max_min_value = "0"
 
     def flag_target1(self):
-        self.target_1_value = 1
+        print ("HEREEEEE TARGET 1")
+        self.target_1_value = "1"
 
     def flag_target1_add(self):
-        self.target_1_value = 0
+        print ("HEREEEEE TARGET 1 (ADD)")
+        self.target_1_value = "0"
+
+    def flag_target4(self):
+        print ("HEREEEEE TARGET 4")
+        print (self.target_2_value)
+        self.target_2_value = "1"
+        print (self.target_2_value)
+        
+    def flag_target4_add(self):
+        print ("HEREEEEE TARGET 4 (ADD)")
+        self.target_2_value = "0"
+
+    def flag_week(self):
+        print ("HEREEEEE WEEK")
+        self.week_value = "1"
+        self.day_value = "0"
+
+    def flag_day(self):
+        print ("HEREEEE DAY")
+        self.week_value = "0"
+        self.day_value = "1"
         
     def flag_no_day_gap(self):
-        self.flag_no_gap = 1 
+        print ("HEREEEEEE NO GAP")
+        self.flag_no_gap = "1"
 
     def flag_day_gap(self):
-        self.flag_no_gap = 0
+        self.flag_no_gap = "0"
 
     # FUNCTIONS USING A CONNECT 
+
+
+
+    def handleSelectionChanged_variabletoplot(self):
+        summary_file_names = ["table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_source.out","table_summary_vacuum.out","table_summary_magnet.out",
+        "table_summary_rf.out","table_summary_rf.out","table_summary_rf.out","table_summary_extraction.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out","table_summary_beam.out",
+        "table_summary_transmission.out"]
+        labels = ["CURRENT_","VOLTAGE_","RATIO_","SOURCE_PERFORMANCE_","PRESSURE_","CURRENT_","RELATIVE_TARGET_CURRENT_","EXTRACTION_LOSSES_","TRANSMISSION_"]
+        labels_1 = ["DEE1_VOLTAGE_","FORWARD_POWER_","FLAP1_","CAROUSEL_POSITION_","COLL_CURRENT_L_","RELATIVE_COLL_CURRENT_L_","TARGET_CURRENT_"]
+        labels_2 = ["DEE2_VOLTAGE_","REFLECTED_POWER_","FLAP2_","BALANCE_POSITION_","COLL_CURRENT_R_","RELATIVE_COLL_CURRENT_R_","FOIL_CURRENT_"]
+        ylabel = ["CURRENT [mA]","VOLTAGE [V]",r"RATIO [mA/$\mu A$]",r"RATIO [$\mu A$/mA]",r"PRESSURE [$10^{-5}$mbar]","MAGNET CURRENT [A]",r"RELATIVE CURRENT (FOIL)[%]","LOSSES [%]",r"TRANSMISSION RATE [($\mu A$ Foil/$\mu A$ Probe) %]"]
+        ylabel_d = ["AVERAGE VOLTAGE [kV]",r"AVERAGE POWER [kW]",r"AVERAGE POSITION [%]",r"POSITION [%]",r"CURRENT [$\mu A$]",r"RELATIVE CURRENT [%]",r"AVERAGE CURRENT [$\mu$A]"]
+        file_name = ["ion_source_evolution.pdf","voltage_evolution.pdf","ratio_evolution.pdf","source_performance.pdf","vacuum_evolution.pdf","magnet_evolution.pdf","relative_currents_foil.pdf","efficiency_target_evolution.pdf","transmission.pdf"]
+        file_name_d = ["dee1_dee2_voltage_evolution.pdf","power_evolution.pdf","flap_evolution.pdf","carousel_balance_evolution.pdf","collimator_current_evolution.pdf","absolute_collimator_current_evolution.pdf","target_foil_evolution.pdf"]
+        legend = ["T","T","T","T","T","T","T","T","T"]
+        legend_1 = ["DEE1","FORWARDED ","FLAP 1 ","CAROUSEL ","COLLIMATOR  L","COLLIMATOR  L","TARGET ","COLLIMATOR L ","TARGET "]
+        legend_2 = ["DEE2","REFELECTED ","FLAP 2 ","BALANCE ","COLLIMATOR  R","COLLIMATOR  R","FOIL ","COLLIMATOR R ","FOIL "]
+        #
+        index=(self.tablefiles_tab2.selectionModel().currentIndex())
+        self.fileName=index.sibling(index.row(),index.column()).data()
+        self.tfs_input = tfs.read(os.path.join(self.output_path,summary_file_names[index.row()]))
+        self.target_2 = int(np.max(self.tfs_input.TARGET))
+        self.target_1 = self.target_2-3 
+        self.data_1 = self.tfs_input[self.tfs_input.TARGET == str(self.target_1)]
+        self.data_2 = self.tfs_input[self.tfs_input.TARGET == str(self.target_2)]
+        self.sc3.axes.clear() 
+        # Defining the classes for the two targets 
+        target_information_1 = target_information() 
+        target_information_2 = target_information()
+        target_information_1_extra = target_information() 
+        target_information_2_extra = target_information()
+        target_information_1.selecting_data_to_plot_reset(self.data_1,self.target_1)
+        target_information_2.selecting_data_to_plot_reset(self.data_2,self.target_2)
+        target_information_1_extra.selecting_data_to_plot_reset(self.data_1,self.target_1)
+        target_information_2_extra.selecting_data_to_plot_reset(self.data_2,self.target_2)
+        target_information_1.foil_research()
+        target_information_1.sortering_data()       
+        target_information_2.foil_research()
+        target_information_2.sortering_data()
+        target_information_1_extra.foil_research()
+        target_information_1_extra.sortering_data()       
+        target_information_2_extra.foil_research()
+        target_information_2_extra.sortering_data()
+        #
+        if index.row() in [3,15]:
+            self.flag_max()
+        if index.row() == 5:
+            uppper_limit = 1 
+            lower_limit = 1
+        else: 
+            uppper_limit = 1.1
+            lower_limit = 0.9
+        if index.row() in [0,1,2,4,5]:    
+            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],"1",uppper_limit,lower_limit)
+        elif index.row() == 3:
+            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],"0",uppper_limit,lower_limit)            
+        elif index.row() in [13,14]:      
+            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],"1",uppper_limit,lower_limit)
+        elif index.row() == 15:
+            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],"0",uppper_limit,lower_limit)
+        elif index.row() in [10,11,12]:
+            plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,target_information_1,target_information_2,target_information_1_extra,target_information_2_extra,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],file_name_d[index.row()-6],legend,"0",uppper_limit,lower_limit)
+        else:
+            plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,target_information_1,target_information_2,target_information_1_extra,target_information_2_extra,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],file_name_d[index.row()-6],legend,"0",uppper_limit,lower_limit)
+   
         
+        
+class target_information(editing_table):
+    def __init__(self):
+        self.index_foil_list = []
+        self.index_foil_list_position = []
+        self.unique_index_foil_sorted = []
+        self.unique_index_foil = []
+        self.index_foil_sorted = []
+        self.index_foil_sorted_position = []
+        self.ave_value = []
+        self.max_value = []
+        self.min_value = []
+        self.std_value = []
+        self.x_values = []
+    
+    def selecting_data_to_plot_reset(self,data,target):
+        self.tfs_target = data
+        self.tfs_target.reset_index(drop=True, inplace=True)
+        self.tfs_target_no_reset = (data)
+        self.tfs_unique_target = (self.tfs_target.drop_duplicates(subset="FOIL",keep = "first"))
+        self.tfs_unique_target_array = np.array(self.tfs_target.drop_duplicates(subset="FOIL",keep = "first"))
+
+  
+    def foil_research(self):
+            print ("FOIL")
+            print (self.tfs_unique_target)
+            self.unique_index_foil = np.array(self.tfs_unique_target.FOIL)
+            for i in range(len(self.tfs_unique_target.FOIL)):
+               # get all the positions where a given foil is and convert to a list (TARGET 1)
+               self.getting_position(i)
+               # list of positions within the dataframe T1
+               self.index_foil_list.append(self.index_foil)
+               # list of positions in the original dataframe
+               self.index_foil_list_position.append(self.index_foil_position)
+
+    def sortering_data(self):
+        self.unique_index_foil_sorted = [self.tfs_unique_target.FOIL for _,self.tfs_unique_target.FOIL in sorted(zip(self.index_foil_list,self.tfs_unique_target.FOIL))]
+        self.index_foil_sorted = np.sort(self.index_foil_list)
+        self.index_foil_sorted_position = np.sort(self.index_foil_list_position)
+
+    def getting_position(self,i):
+        self.index_foil = (((self.tfs_target.FOIL[self.tfs_target["FOIL"] == self.tfs_unique_target.FOIL.iloc[i]].index))).tolist()
+        self.index_foil_position = (((self.tfs_target_no_reset.FOIL[self.tfs_target["FOIL"] == self.tfs_unique_target.FOIL.iloc[i]].index))).tolist()
+
+
+
+
 
 
 if __name__ == "__main__":  # had to add this otherwise app crashed

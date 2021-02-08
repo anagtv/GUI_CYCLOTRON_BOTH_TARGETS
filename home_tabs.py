@@ -92,12 +92,10 @@ def tab1_data(self):
 
 def tab1_selection(self):
         selection = self.tableWidget.selectionModel()
-        print ("HEREEEEEE 2")
         selection.selectionChanged.connect(self.handleSelectionFile)
         self.show()
         self.selection_folder = self.tableWidget_logfiles.selectionModel()
         self.selection_folder.selectionChanged.connect(self.handleSelectionFolder)
-        print ("ENDINND")
         #self.show()
     
 def tab2_layout(self):

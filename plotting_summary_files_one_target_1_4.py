@@ -70,14 +70,6 @@ def setting_plot_for_both_targets(self,targets_summary):
     self.maximum_value = np.max([maximum_value])
     self.minimum_value = np.min([minimum_value])
 
-def setting_plot_for_both_targets_two_functions(self,targets_summary):
-    maximum_value = []
-    minimum_value = []
-    for i in range(len(targets_summary)):
-        maximum_value.append(np.max(targets_summary[i].max_value + targets_summary[i].std_value))
-        minimum_value.append(np.min(targets_summary[i].max_value - targets_summary[i].std_value))
-    self.maximum_value = np.max([maximum_value])
-    self.minimum_value = np.min([minimum_value])
 
 def setting_minimum_and_maximimum_two_functions(self,targets_summary):
     if self.target_2_value == "1":
@@ -85,7 +77,7 @@ def setting_minimum_and_maximimum_two_functions(self,targets_summary):
     elif self.target_1_value == "1":
        setting_plot_for_both_targets(self,targets_summary[2:4])
     else:
-        setting_plot_for_both_targets_two_functions(self,targets_summary)
+        setting_plot_for_both_targets(self,targets_summary)
 
 def setting_minimum_and_maximimum(self,targets_summary):
     if self.target_2_value == "1":

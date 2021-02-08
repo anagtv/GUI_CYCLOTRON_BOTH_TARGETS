@@ -651,6 +651,8 @@ class plotting_data(editing_table,menus_functions):
         target_information_1_extra.sortering_data()       
         target_information_2_extra.foil_research()
         target_information_2_extra.sortering_data()
+        targets_summary = [target_information_1,target_information_2]
+        targets_summary_extra = [target_information_1,target_information_2,target_information_1_extra,target_information_2_extra]
         #
         if index.row() in [3,15]:
             self.flag_max()
@@ -660,20 +662,32 @@ class plotting_data(editing_table,menus_functions):
         else: 
             uppper_limit = 1.1
             lower_limit = 0.9
-        if index.row() in [0,1,2,4,5]:    
-            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],"1",uppper_limit,lower_limit)
-        elif index.row() == 3:
-            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()],ylabel[index.row()],file_name[index.row()],legend[index.row()],"0",uppper_limit,lower_limit)            
-        elif index.row() in [13,14]:      
-            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],"1",uppper_limit,lower_limit)
-        elif index.row() == 15:
-            plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,target_information_1,target_information_2,labels[index.row()-7],ylabel[index.row()-7],file_name[index.row()-7],legend[index.row()-7],"0",uppper_limit,lower_limit)
-        elif index.row() in [10,11,12]:
-            plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,target_information_1,target_information_2,target_information_1_extra,target_information_2_extra,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],file_name_d[index.row()-6],legend,"0",uppper_limit,lower_limit)
-        else:
-            plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,target_information_1,target_information_2,target_information_1_extra,target_information_2_extra,labels_1[index.row()-6],labels_2[index.row()-6],ylabel_d[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],file_name_d[index.row()-6],legend,"0",uppper_limit,lower_limit)
-   
-        
+        if index.row() in [0,1,2,3,4,5]:   
+            summary = [labels[index.row()],legend[index.row()],file_name[index.row()],"1"]
+            limits = [ylabel[index.row()],uppper_limit,lower_limit]  
+            if index.row() == 3:
+                print ("PLOTTING PEERFORMANCE")
+                summary = [labels[index.row()],legend[index.row()],file_name[index.row()],"0"]
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)    
+            else:                    
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)
+        elif index.row() in [13,14,15]: 
+            summary = [labels[index.row()-7],legend[index.row()-7],file_name[index.row()-7],"0"]
+            limits = [ylabel[index.row()-7],uppper_limit,lower_limit]     
+            if index.row() == 15:
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)
+            else:
+                summary = [labels[index.row()-7],legend[index.row()-7],file_name[index.row()-7],"1"]
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)           
+        else:            
+            summary = [labels_1[index.row()-6],labels_2[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],file_name_d[index.row()-6],"0"]
+            limits = [ylabel_d[index.row()-6],uppper_limit,lower_limit]
+            if index.row() in [10,11,12]:
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,targets_summary_extra,summary,limits)
+            else:
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,targets_summary_extra,summary,limits)
+           
+            
         
 class target_information(editing_table):
     def __init__(self):

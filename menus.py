@@ -6,6 +6,11 @@ from PyQt5.QtWidgets import QCalendarWidget, QFontDialog, QColorDialog, QTextEdi
 from PyQt5.QtWidgets import QCheckBox, QProgressBar, QComboBox, QLabel, QStyleFactory, QLineEdit, QInputDialog,QScrollArea,QFrame
 from PyQt5 import QtCore, QtWidgets
 import file_plots
+import pandas as pd
+import datetime
+from datetime import timedelta
+import numpy as np
+
 def main_menu(self):
         self.mainMenu = self.menuBar()
         self.main_widget = QtWidgets.QWidget()
@@ -111,4 +116,62 @@ def remove_menu_action(self):
         #self.editorRemove.addAction(plotting_data.removeCol)
         self.editorRemove.triggered.connect(self.remove_row)
 
+def removing_days_adding_weeks(self):
+    index_week_list = []  
+    week_number = []
+    x_values = []
+    # WEEK_DAYS 
+    df_week = pd.DataFrame(week_number,columns =['WEEK'])
+    df_week_first = df_week.drop_duplicates(subset="WEEK",keep = "last")
+    df_week_first_index = df_week_first.index
+    if self.week_value == "1":
+        for i in range(len(df_week_first.WEEK)):
+            index_week = (((df_week[df_week["WEEK"] == df_week_first.WEEK.iloc[i]].index)))
+            index_week_tolist = index_week.tolist()
+            index_week_tolist_average = np.average(index_week_tolist)
+            index_week_list.append(index_week_tolist_average)  
+            if index_week_list[i] not in x_values: 
+                self.sc3.axes.text(index_week_list[i]-0.3,  self.set_configuration ,"W " + str(df_week_first.WEEK.iloc[i]),color='r', fontsize=12,rotation=90)
+    else:
+        for i in range(0,len(self.tfs_input.DATE),10):
+            x = i
+            x_values.append(i)
+            self.sc3.axes.text(x-0.3, self.set_configuration,self.tfs_input.DATE.iloc[i][5:], fontsize=12,rotation=90)
+        for i in range(0,len(self.tfs_input),1):
+           date_to_week = datetime.datetime.strptime(self.tfs_input.DATE.iloc[i],"%Y-%m-%d")
+           week_number.append(date_to_week.isocalendar()[1])
+    #
+def removing_adding_gap(self):
+    time_list = (list(range(len(self.tfs_input.FILE))))
+    if self.flag_no_gap == "1":
+        try:
+           ticks_to_use = self.tfs_input.FILE[::int(len(self.tfs_input.FILE)/10)]   
+           ticks_to_use_list = time_list[::int(len(self.tfs_input.FILE)/10)] 
+           self.sc3.axes.set_xticks(ticks_to_use_list)
+           self.sc3.axes.set_xticklabels(ticks_to_use)
+        except:
+           ticks_to_use = self.tfs_input.FILE[::int(len(self.tfs_input.FILE)/2)]   
+           ticks_to_use_list = time_list[::int(len(self.tfs_input.FILE)/2)] 
+           self.sc3.axes.set_xticks(ticks_to_use_list)
+           self.sc3.axes.set_xticklabels(ticks_to_use)
+    else: 
+        ticks_to_use = self.tfs_input.FILE[::int(len(self.tfs_input.FILE)/15)]   
+        ticks_to_use_list = self.tfs_input.FILE[::int(len(self.tfs_input.FILE)/15)] 
+        self.sc3.axes.set_xticks(ticks_to_use.astype(float))
+        self.sc3.axes.set_xticklabels(ticks_to_use_list.astype(float),rotation=90)
+
+def getting_foil_change_position(sel_system,index_foil,index_foil_sorted,unique_index_foil):
+    for i in range(len(index_foil)):
+        checking_value = (index_foil[i] == list(range(min(index_foil[i]), max(index_foil[i])+1)))
+        if len(index_foil) == 1:
+           checking_value =  checking_value[0]
+        if checking_value == True:
+            sel_system.horizontal_mark_plot.append(index_foil_sorted_position[i][0])
+            sel_system.horizontal_value_plot.append(unique_index_foil_1[i])
+        else: 
+           for j in range(len(index_foil_1[i])):
+                sel_system.check_line(index_foil_1[i][j],unique_index_foil_1[i],i,index_foil_sorted_1_position[i][j])
+           sel_system.horizontal_mark_plot.append(sel_system_1.verification_position)
+           sel_system.horizontal_value_plot.append(sel_system_1.valuei)
+           sel_system.counter.append(sel_system_1.counteri)
 

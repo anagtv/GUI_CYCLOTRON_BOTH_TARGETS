@@ -654,6 +654,8 @@ class plotting_data(editing_table,menus_functions):
         targets_summary = [target_information_1,target_information_2]
         targets_summary_extra = [target_information_1,target_information_2,target_information_1_extra,target_information_2_extra]
         #
+        self.flag_max_reset()
+        #
         if index.row() in [3,15]:
             self.flag_max()
         if index.row() == 5:
@@ -666,12 +668,13 @@ class plotting_data(editing_table,menus_functions):
             summary = [labels[index.row()],legend[index.row()],file_name[index.row()],"1"]
             limits = [ylabel[index.row()],uppper_limit,lower_limit]  
             if index.row() == 3:
-                print ("PLOTTING PEERFORMANCE")
+                self.flag_max() 
                 summary = [labels[index.row()],legend[index.row()],file_name[index.row()],"0"]
                 plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)    
             else:                    
                 plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)
         elif index.row() in [13,14,15]: 
+            self.flag_max()
             summary = [labels[index.row()-7],legend[index.row()-7],file_name[index.row()-7],"0"]
             limits = [ylabel[index.row()-7],uppper_limit,lower_limit]     
             if index.row() == 15:
@@ -679,7 +682,8 @@ class plotting_data(editing_table,menus_functions):
             else:
                 summary = [labels[index.row()-7],legend[index.row()-7],file_name[index.row()-7],"1"]
                 plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,summary,limits)           
-        else:            
+        else: 
+            self.flag_max()           
             summary = [labels_1[index.row()-6],labels_2[index.row()-6],legend_1[index.row()-6],legend_2[index.row()-6],file_name_d[index.row()-6],"0"]
             limits = [ylabel_d[index.row()-6],uppper_limit,lower_limit]
             if index.row() in [10,11,12]:

@@ -87,6 +87,12 @@ def setting_minimum_and_maximimum(self,targets_summary):
     else:
         setting_plot_for_both_targets(self,targets_summary) 
 
+def setting_configuration(self,upper_value,lower_value):
+    locs, labels = plt.yticks()
+    distance_plot = (self.maximum_value*upper_value-self.minimum_value*lower_value)/(6*len(locs))
+    self.set_configuration = distance_plot+self.maximum_value*upper_value
+    self.set_configuration_min = distance_plot+self.minimum_value*lower_value
+
 def plot_configuration(self,ylabel_name,upper_value,lower_value):
     fig, ax1 = plt.subplots()
     self.sc3.axes.ticklabel_format(axis="y",style="sci")
@@ -98,30 +104,10 @@ def plot_configuration(self,ylabel_name,upper_value,lower_value):
     plt.yticks(fontsize=16)
     self.sc3.axes.legend(loc='best',ncol=3,fontsize=14) 
     fig.tight_layout() 
-    locs, labels = plt.yticks()
-    self.set_configuration = ((self.maximum_value*upper_value-self.minimum_value*lower_value)/(6*len(locs))+self.maximum_value*upper_value)
-    self.set_configuration_min = ((self.maximum_value*upper_value-self.minimum_value*lower_value)/(6*len(locs))+self.minimum_value*lower_value)
+    setting_configuration(self,upper_value,lower_value)
     self.sc3.axes.set_ylim([self.minimum_value*lower_value,self.maximum_value*upper_value]) 
 
-def removing_adding_target_1_4_max_min(self,targets_summary,legend,colors_plot):
-    if self.target_2_value == "1":
-        plotting_average_std(self,targets_summary[0],legend[0],colors_plot[0][0])
-        if self.max_min_value == "0": 
-            plotting_max_min(self,targets_summary[0],legend[3],colors_plot[1][0])
-        self.file_name_current = legend[2][:-4] + "_" + str(self.target_1)           
-    elif self.target_1_value == "1":
-        plotting_average_std(self,targets_summary[1],legend[1],colors_plot[0][1])
-        if self.max_min_value == "0": 
-            plotting_max_min(self,targets_summary[1],legend[3],colors_plot[1][1])
-        self.file_name_current = legend[2][:-4] + "_" + str(self.target_2)
-    else:
-        self.file_name_current = legend[2]
-        plotting_average_std(self,targets_summary[0],legend[0],colors_plot[0][0])
-        plotting_average_std(self,targets_summary[1],legend[1],colors_plot[0][1])
-        if self.max_min_value == "0": 
-            plotting_max_min(self,targets_summary[0],legend[3],colors_plot[1][0])
-            plotting_max_min(self,targets_summary[1],legend[3],colors_plot[1][1])
-
+    
 def plotting_average_std(self,target_information,legend,colors):
     self.sc3.axes.errorbar(target_information.x_values,target_information.ave_value,yerr=target_information.std_value,fmt=self.fmts[0], color=colors,label= legend, picker=5)  
     self.sc3.axes.set_xlim([self.min_x-2,self.max_x+2]) 
@@ -154,27 +140,38 @@ def plotting_trends(self,targets_summary,labels):
     self.final_legend = []
     self.fmts = ["o","^","v"]
     for i in range(len(targets_summary)):
-        getting_stadistic_values(targets_summary[i],self.labels[i])
+        getting_stadistic_values(targets_summary[i],self.column[i])
         targets_summary[i].x_values = (self.tfs_input.TARGET[self.tfs_input.TARGET == self.targets[i]].index)
         self.final_legend.append("AVE " + labels[1] + self.targets[i])
     self.final_legend.append(labels[2])
     self.final_legend.append(labels[3])
-    np.max(targets_summary[0].max_value + targets_summary[0].std_value)   
-    if labels[3] == "1":
-        self.flag_max_reset()        
-    
+     
+def removing_adding_target_1_4_max_min(self,targets_summary,legend,colors_plot):
+    for i in (self.rango):
+        plotting_average_std(self,targets_summary[i],legend[i],colors_plot[0][i])
+        if self.max_min_value == "0": 
+            plotting_max_min(self,targets_summary[i],"1",colors_plot[1][i])            
 
 def generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits):
+    self.column = [labels[0],labels[0]]
     self.targets = [str(self.target_1),str(self.target_2)]
-    self.labels = [labels[0],labels[0]]
-    colors = [COLORS[4],COLORS[8]]
-    colors_min = [COLORS[9],COLORS[10]]
-    colors_plot = [colors,colors_min]
-    plotting_trends(self,targets_summary,labels)
+    plotting_trends(self,targets_summary,labels)    
     setting_minimum_and_maximimum(self,targets_summary)
     setting_minimum_maximum_x(self,targets_summary)    
     plot_configuration(self,limits[0],limits[1],limits[2])
-    removing_adding_target_1_4_max_min(self,targets_summary,self.final_legend,colors_plot) 
+    if self.target_2_value == "1":
+        self.rango = [0]
+        self.file_name_current = labels[2][:-4] + "_" + str(self.target_1)
+    elif self.target_1_value == "1":
+        self.rango = [-1] 
+        self.file_name_current = labels[2][:-4] + "_" + str(self.target_2)
+    else:
+        self.rango = [0,1]
+        self.file_name_current = labels[2][:-4] 
+    colors = [COLORS[4],COLORS[8]]
+    colors_min = [COLORS[9],COLORS[10]]
+    colors_plot = [colors,colors_min]
+    removing_adding_target_1_4_max_min(self,targets_summary,labels,colors_plot) 
     menus.removing_days_adding_weeks(self)
     menus.removing_adding_gap(self)   
     self.sc3.axes.legend(loc='best',ncol=3,fontsize=14)
@@ -185,7 +182,7 @@ def generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits):
 
 def generic_plot_no_gap_two_quantities(self,targets_summary,labels,limits):
     self.targets = [str(self.target_1),str(self.target_2),str(self.target_1),str(self.target_2)]
-    self.labels = [labels[0],labels[0],labels[1],labels[1]]
+    self.column = [labels[0],labels[0],labels[1],labels[1]]
     plotting_trends(self,targets_summary,labels)
     setting_minimum_and_maximimum_two_functions(self,targets_summary)
     self.fmts = ["o","^","v"]
@@ -204,8 +201,8 @@ def generic_plot_no_gap_two_quantities(self,targets_summary,labels,limits):
     legend2_2 ='_nolegend_'    
     legend_2 = [legend1_2,legend2_2,labels[2],labels[3]]
     removing_adding_target_1_4_max_min(self,targets_summary[2:4],legend_2,colors_plot[1])   
-    removing_days_adding_weeks(self)
-    removing_adding_gap(self)
+    menus.removing_days_adding_weeks(self)
+    menus.removing_adding_gap(self)
     self.sc3.axes.legend(loc='best',ncol=3,fontsize=14)
     self.sc3.fig.savefig((os.path.join(self.output_path,self.file_name_current)))
    

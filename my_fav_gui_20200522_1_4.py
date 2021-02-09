@@ -651,8 +651,8 @@ class plotting_data(editing_table,menus_functions):
         target_information_1_extra.sortering_data()       
         target_information_2_extra.foil_research()
         target_information_2_extra.sortering_data()
-        targets_summary = [target_information_1,target_information_2]
-        targets_summary_extra = [target_information_1,target_information_2,target_information_1_extra,target_information_2_extra]
+        targets_summary = [[target_information_1,target_information_2]]
+        targets_summary_extra = [[target_information_1,target_information_2],[target_information_1_extra,target_information_2_extra]]
         #
         self.flag_max_reset()
         #

@@ -66,10 +66,11 @@ def plot_menu_source(self):
         self.openPlotI.setStatusTip('Plot files')
 
 def plot_source_actions(self):
-        self.openPlotI_S.triggered.connect(file_plots.file_plot_collimators_source)
-        self.openPlotIV_S.triggered.connect(file_plots.file_plot_vacuum_source)
-        self.openPlotRF_S.triggered.connect(file_plots.file_plot_rf_source)
-        self.openPlotEx_S.triggered.connect(file_plots.file_plot_extraction_source)
+    ...
+        #self.openPlotI_S.triggered.connect(file_plots.file_plot_collimators_source)
+        #self.openPlotIV_S.triggered.connect(file_plots.file_plot_vacuum_source)
+        #self.openPlotRF_S.triggered.connect(file_plots.file_plot_rf_source)
+        #self.openPlotEx_S.triggered.connect(file_plots.file_plot_extraction_source)
 
 def adding_plot_source(self):
         editorMenu_S = self.mainMenu.addMenu('&Plot Individual Files (Source)')
@@ -113,31 +114,6 @@ def remove_menu_action(self):
         self.editorRemove.addAction(self.removeRow)
         #self.editorRemove.addAction(plotting_data.removeCol)
         self.editorRemove.triggered.connect(self.remove_row)
-
-def removing_days_adding_weeks(self):
-    index_week_list = []  
-    week_number = []
-    x_values = []
-    # WEEK_DAYS 
-    df_week = pd.DataFrame(week_number,columns =['WEEK'])
-    df_week_first = df_week.drop_duplicates(subset="WEEK",keep = "last")
-    df_week_first_index = df_week_first.index
-    if self.week_value == "1":
-        for i in range(len(df_week_first.WEEK)):
-            index_week = (((df_week[df_week["WEEK"] == df_week_first.WEEK.iloc[i]].index)))
-            index_week_tolist = index_week.tolist()
-            index_week_tolist_average = np.average(index_week_tolist)
-            index_week_list.append(index_week_tolist_average)  
-            if index_week_list[i] not in x_values: 
-                self.sc3.axes.text(index_week_list[i]-0.3,  self.set_configuration ,"W " + str(df_week_first.WEEK.iloc[i]),color='r', fontsize=12,rotation=90)
-    else:
-        for i in range(0,len(self.tfs_input.DATE),10):
-            x = i
-            x_values.append(i)
-            self.sc3.axes.text(x-0.3, self.set_configuration,self.tfs_input.DATE.iloc[i][5:], fontsize=12,rotation=90)
-        for i in range(0,len(self.tfs_input),1):
-           date_to_week = datetime.datetime.strptime(self.tfs_input.DATE.iloc[i],"%Y-%m-%d")
-           week_number.append(date_to_week.isocalendar()[1])
     #
 def removing_adding_gap(self):
     time_list = (list(range(len(self.tfs_input.FILE))))
@@ -173,3 +149,14 @@ def getting_foil_change_position(sel_system,index_foil,index_foil_sorted,unique_
            sel_system.horizontal_value_plot.append(sel_system_1.valuei)
            sel_system.counter.append(sel_system_1.counteri)
 
+def removing_days_adding_weeks(self): 
+    x_values = []
+    week_number = []
+    for i in range(0,len(self.tfs_input.DATE),10):
+        x = i
+        x_values.append(i)
+        self.sc3.axes.text(x-0.3, self.set_configuration,self.tfs_input.DATE.iloc[i][5:], fontsize=12,rotation=90)
+    for i in range(0,len(self.tfs_input),1):
+           date_to_week = datetime.datetime.strptime(self.tfs_input.DATE.iloc[i],"%Y-%m-%d")
+           week_number.append(date_to_week.isocalendar()[1])
+    #

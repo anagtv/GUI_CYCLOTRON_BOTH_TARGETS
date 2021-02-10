@@ -44,8 +44,7 @@ def plot_menu(self):
         self.openPlotM = QAction('&Plot Magnet', self)
         self.openPlotRF = QAction('&Plot RF', self)
         self.openPlotRFPower = QAction('&Plot RF Power', self)
-        self.openPlotEx = QAction('&Plot Extraction', self)
-        self.openPlotCol = QAction('&Plot Collimators',self)
+        self.openPlotEx = QAction('&Plot Extraction/Collimators', self)
         self.openPlotColTarget = QAction('&Plot Target/Collimators',self)
     
 def adding_plot_actions(self):
@@ -56,7 +55,6 @@ def adding_plot_actions(self):
         editorMenu.addAction(self.openPlotRF)
         editorMenu.addAction(self.openPlotRFPower)
         editorMenu.addAction(self.openPlotEx)
-        editorMenu.addAction(self.openPlotCol)
         editorMenu.addAction(self.openPlotColTarget)
 
 def plot_menu_source(self):

@@ -43,14 +43,8 @@ class Selection_system:
 def setting_plot_for_individual_target(self,target_number):
     self.maximum_value = (np.max(target_number.max_value + target_number.std_value))
     self.minimum_value = (np.min(target_number.min_value - target_number.std_value))
-    print ("MAXIMUM AND MINIMUM")
-    print (self.maximum_value)
-    print (self.minimum_value)
 
 def setting_plot_for_both_targets(self,targets_summary):
-    print ("TARGETS SUMMARY")
-    print (len(targets_summary))
-    print (targets_summary[0])
     maximum_value = []
     minimum_value = []
     for i in range(len(targets_summary)):
@@ -58,9 +52,6 @@ def setting_plot_for_both_targets(self,targets_summary):
         minimum_value.append(np.min(targets_summary[i].min_value - targets_summary[i].std_value))
     self.maximum_value = np.max([maximum_value])
     self.minimum_value = np.min([minimum_value])
-    print ("MAXIMUM AND MINIMUM")
-    print (self.maximum_value)
-    print (self.minimum_value)
 
 
 def setting_minimum_and_maximimum_two_functions(self,targets_summary):
@@ -83,7 +74,7 @@ def setting_configuration(self,upper_value,lower_value):
     locs, labels = plt.yticks()
     distance_plot = (self.maximum_value*upper_value-self.minimum_value*lower_value)/(6*len(locs))
     self.set_configuration = distance_plot+self.maximum_value*upper_value
-    self.set_configuration_min = distance_plot+self.minimum_value*lower_value
+    self.set_configuration_min = distance_plot+self.minimum_value
 
 def plot_configuration(self,ylabel_name,upper_value,lower_value):
     fig, ax1 = plt.subplots()
@@ -109,8 +100,6 @@ def getting_stadistic_values(target_number,label):
     column_name_max = label + "MAX"
     column_name_std = label + "STD"
     column_name_min = label + "MIN"
-    print ("COLUMN")
-    print (column_name_ave)
     ave_value = (getattr(target_number.tfs_target,column_name_ave))
     std_value = (getattr(target_number.tfs_target,column_name_std))
     try:
@@ -133,13 +122,12 @@ def generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,labels,limi
         indexes = [0,1]
     generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits)
     sel_system = Selection_system()
-    print ("SELECTING FOILS")
     for j in indexes:
         selecting_foils(sel_system,targets_summary[0][j])
-    print ("CONFIGURATION")
-    print (self.set_configuration_min)
-    print (sel_system.horizontal_mark_plot)
-    for i in range(len(sel_system.horizontal_mark_plot)):   
+    for i in range(len(sel_system.horizontal_mark_plot)): 
+            print ("FOILSSSSSSS")
+            print (sel_system.horizontal_mark_plot)  
+            print (self.set_configuration_min)
             self.sc3.axes.text(sel_system.horizontal_mark_plot,self.set_configuration_min,"F " + str(sel_system.horizontal_value_plot), fontsize=10,rotation=90)
 
 def plotting_trends(self,targets_summary,labels):
@@ -234,8 +222,8 @@ def selecting_foils(sel_system,target_information):
             sel_system.horizontal_mark_plot.append(target_information.index_foil_sorted_position[i][0])
             sel_system.horizontal_value_plot.append(target_information.unique_index_foil[i])
         else: 
-           for j in range(len(index_foil_sorted[i])):
-                sel_system_1.check_line(target_information.index_foil_sorted[i][j],target_information.unique_index_foil[i],i,target_information.index_foil_sorted_position[i][j])
+           for j in range(len(target_information.index_foil_sorted[i])):
+                sel_system.check_line(target_information.index_foil_sorted[i][j],target_information.unique_index_foil[i],i,target_information.index_foil_sorted_position[i][j])
            sel_system.horizontal_mark_plot.append(sel_system.verification_position)
            sel_system.horizontal_value_plot.append(sel_system.valuei)
            sel_system.counter.append(sel_system.counteri)

@@ -11,8 +11,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import selecting_trends
-import datetime
-from datetime import timedelta
 
 def home(self):
         self.tabs = QtWidgets.QTabWidget()

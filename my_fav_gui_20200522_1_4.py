@@ -1,16 +1,3 @@
-#! /usr/bin/env python3
-#  -*- coding:utf-8 -*-
-###############################################################
-# kenwaldek                           MIT-license
-
-# Title: PyQt5 lesson 14              Version: 1.0
-# Date: 09-01-17                      Language: python3
-# Description: pyqt5 gui and opening files
-# pythonprogramming.net from PyQt4 to PyQt5
-###############################################################
-# do something
-
-
 import sys
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QPixmap
@@ -50,34 +37,14 @@ import menus
 import home_tabs
 #matplotlib.use('Qt5Agg')
 
-class UpdateFrame(QFrame):
-    def __init__(self, parent=None):
-        super(UpdateFrame, self).__init__(parent)
-
-        layout = QtWidgets.QVBoxLayout()
-        self.setLayout(layout)
-
-        for i in range(25):
-            listFrame = QFrame()
-            listFrame.setStyleSheet('background-color: white;'
-                                    'border: 20px solid #20b2aa;'
-                                    'border-radius: 0px;'
-                                    'margin: 2px;'
-                                    'padding: 2px')
-            listFrame.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-            listFrame.setGeometry(50, 50, 1500, 1000)
-            
-            layout.addWidget(listFrame)
 
 class window(QMainWindow):
 
     def __init__(self):
         super(window, self).__init__()
-        #frameWidget = UpdateFrame(self)
         self.setWindowTitle("Cyclotron Analysis")
         self.setGeometry(50, 50, 1500, 1000)
         self.setWindowIcon(QIcon('pic.png'))
-        #menus.main_menu(self)
         self.mainMenu = self.menuBar()
         self.main_widget = QtWidgets.QWidget()
         self.scrollArea = QtWidgets.QScrollArea()
@@ -112,7 +79,7 @@ class menus_functions(window):
     def file_open_message(self,values):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        self.fileName_completed, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "/Users/anagtv/Documents/OneDrive/046 - Medical Devices/Mantenimientos ciclotrones/TCP/LOGS","All Files (*);;Python Files (*.py)", options=options)
+        self.fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "/Users/anagtv/Documents/OneDrive/046 - Medical Devices/Mantenimientos ciclotrones/TCP/LOGS","All Files (*);;Python Files (*.py)", options=options)
         managing_files.file_open(self)
         managing_files.file_open_summary(self)
         self.first_row = [self.file_number,self.name,self.date_stamp,self.target_number]
@@ -150,6 +117,7 @@ class menus_functions(window):
         file_components = [["table_summary_source.out"],["table_summary_vacuum.out"],["table_summary_magnet.out"],["table_summary_rf.out"],["table_summary_extraction.out"],["table_summary_beam.out"]]
         file_components_columns = [["Current","Voltage","Ratio","Source Performance"],["Pressure"],["Magnet Current"],["Dee Voltage","Power","Flap"],["Caroussel"],["Absolute Collimator","Relative Collimator","Absolute Target","Relative Target","Extraction losses","Transmission"]]
         source_summary_path = os.path.join(self.output_path,file_components[0][0])
+        #self.fileName_folder 
         if (os.path.isfile(source_summary_path) == False): 
             saving_trends.getting_summary(self)
         for i in range(len(components)):
@@ -159,6 +127,7 @@ class menus_functions(window):
               self.current_row_analysis += 1
         self.current_row_analysis = 0      
 
+# Another class for tables and actions to buttons
 class editing_table(window):
     def __init__(self):
         super(editing_table, self).__init__()
@@ -190,15 +159,18 @@ class editing_table(window):
         for i in range(6,17):
              print (beam_summary[i-6].iloc[self.current_row])
              self.tableWidget.setItem(self.current_row,i, QTableWidgetItem(str(round(beam_summary[i-6].iloc[self.current_row],2))))
-        self.tableWidget.setItem(self.current_row,18, QTableWidgetItem(self.fileName_completed))
+        self.tableWidget.setItem(self.current_row,18, QTableWidgetItem(self.fileName))
         self.datos = [self.tableWidget.item(0,0).text()]    
         self.current_row += 1
 
     def handleSelectionFile(self):
         index=(self.tableWidget.selectionModel().currentIndex())
         self.fileName = index.sibling(index.row(),18).data()
+        print ("FILE TO PLOT")
+        print (self.fileName)
         self.row_to_plot = index.row()
         managing_files.file_open(self)
+        managing_files.file_open_summary(self)
 
     def folder_analyze(self,values):
         #When pressed on Cyclotron trends
@@ -213,7 +185,7 @@ class editing_table(window):
         index=(self.tableWidget_logfiles.selectionModel().currentIndex())
         self.fileName=index.sibling(index.row(),index.column()).data()
         self.fileName_folder= index.sibling(index.row(),1499).data()
-        self.fileName_completed = os.path.join(self.fileName_folder,self.fileName)
+        self.fileName = os.path.join(self.fileName_folder,self.fileName)
         try:
             managing_files.file_open(self)
             managing_files.file_open_summary(self)
@@ -233,24 +205,22 @@ class editing_table(window):
          ind = event.ind
          points = tuple(zip(xdata[ind], ydata[ind]))
          self.coordinates_x = xdata[ind][0]
-         [self.target_number,self.date_stamp,self.name,self.file_number] = saving_files_summary_list_20200420.get_headers(str(self.fileName))
-         self.irradiation_values = saving_files_summary_list_20200420.get_irradiation_information(str(self.fileName))
-         self.file_df = saving_files_summary_list_20200420.get_data(self.irradiation_values)
          [target_current,current] = saving_files_summary_list_20200420.get_target_parameters(self.file_df)
          #time = saving_files_summary_list_20200420.get_time(self.file_df,current)
          foil_number = saving_files_summary_list_20200420.get_foil_number(self.file_df,current) 
-         self.table_summary_log.setItem(0,1, QTableWidgetItem(str(self.file_df.Time.iloc[self.coordinates_x])))
-         self.table_summary_log.setItem(1,1, QTableWidgetItem(str(self.file_df.Vacuum_P.astype(float).iloc[self.coordinates_x]*1e5)))
+         self.table_summary_log.setItem(0,1, QTableWidgetItem(str(self.file_df.Time.iloc[ind[0]])))
+         self.table_summary_log.setItem(1,1, QTableWidgetItem(str(self.file_df.Vacuum_P.astype(float).iloc[ind[0]]*1e5)))
          function_names = [self.file_df.Magnet_I,self.file_df.Arc_I,self.file_df.Dee_1_kV,self.file_df.Dee_2_kV,
          self.file_df.Flap1_pos,self.file_df.Flap2_pos,self.file_df.RF_fwd_W,self.file_df.RF_refl_W,
          self.file_df.Extr_pos,self.file_df.Balance,self.file_df.Foil_No,self.file_df.Foil_I,self.file_df.Target_I,self.file_df.Coll_l_I,self.file_df.Coll_r_I,
          self.df_subsystem_beam.Coll_l_rel,self.df_subsystem_beam.Coll_r_rel,self.df_subsystem_beam.Target_rel]
          for i in range (2,17):
             print (i)
-            self.table_summary_log.setItem(i,1, QTableWidgetItem(str(function_names[i-2][self.coordinates_x])))
+            self.table_summary_log.setItem(i,1, QTableWidgetItem(str(function_names[i-2][ind[0]])))
          for i in range (17,20):
-            self.table_summary_log.setItem(17,1, QTableWidgetItem(str(round(function_names[i-2][self.coordinates_x],2))))
+            self.table_summary_log.setItem(17,1, QTableWidgetItem(str(round(function_names[i-2][ind[0]],2))))
          self.current_row_statistics += 1
+
 
     def onpick_trends(self,event):
          thisline = event.artist
@@ -480,9 +450,9 @@ class plotting_data(editing_table,menus_functions):
         self.openPlotRF.triggered.connect(self.setting_plot_RF)
         self.openPlotRFPower.triggered.connect(self.setting_plot_RF_power)
         self.openPlotM.triggered.connect(self.setting_plot_magnet)      
-        self.openPlotEx.triggered.connect(file_plots.file_plot_extraction)
-        self.openPlotCol.triggered.connect(file_plots.file_plot_collimation)
-        self.openPlotColTarget.triggered.connect(file_plots.file_plot_collimation_target)
+        self.openPlotEx.triggered.connect(self.setting_plot_extraction)
+        self.openPlotColTarget.triggered.connect(self.setting_target_collimator)
+
 
     def edit_actions(self):      
         self.editplotmax.triggered.connect(self.flag_max)
@@ -498,70 +468,149 @@ class plotting_data(editing_table,menus_functions):
 
 
     def setting_plot_current(self):
+        file_plots.setting_plot(self)
         self.x_values = self.file_df.Time
-        self.y_values_left = self.file_df.Arc_I.astype(float)
-        self.y_values_right = self.file_df.Arc_V.astype(float)
-        self.label_left = r"Source Voltage [V]"
-        self.label_right = "Source Current [mA]"
-        file_plots.file_plot_one_functions(self)
+        self.y_values = self.file_df.Arc_I.astype(float)
+        self.ylabel = "Current [mA]"
+        self.legend = "Source Current"
+        file_plots.get_plots_one_functions_all(self,0)
+        self.y_values = self.file_df.Arc_V.astype(float)
+        self.ylabel = r"Voltage [V]"
+        self.legend = "Source Current"
+        file_plots.get_plots_one_functions_all(self,1)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.draw()
+        self.sc1.show()    
 
     def setting_plot_vacuum(self):
+        file_plots.setting_plot(self)
         self.x_values = self.file_df.Time
-        self.y_values_left = self.file_df.Vacuum_P.astype(float)*1e5
-        self.y_values_right = self.file_df.Arc_I.astype(float)
-        self.label_left = r"Vacuum P [$10^{-5}$ mbar]"
-        self.label_right = "Source Current [mA]"
-        file_plots.file_plot_one_functions(self)
+        self.y_values = self.file_df.Arc_I.astype(float)
+        self.ylabel = "Current [mA]"
+        self.legend = "Source Current"
+        file_plots.get_plots_one_functions_all(self,0)
+        self.y_values = self.file_df.Vacuum_P.astype(float)*1e5
+        self.ylabel = r"[$10^{-5}$ mbar]"  
+        self.legend = "Vacuum P"  
+        file_plots.get_plots_one_functions_all(self,1)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.draw()
+        self.sc1.show()
 
     def setting_plot_RF(self):
+        file_plots.setting_plot(self)
         self.x_values = self.file_df.Time 
-        self.y_values_left_1 = self.file_df.Dee_1_kV.astype(float)
-        self.y_values_left_2 = self.file_df.Dee_2_kV.astype(float)
-        self.legend_left_1 = "Dee1"
-        self.legend_left_2 = "Dee2"
-        self.label_left = "Voltage [kV]"
-        self.y_values_right_1 = self.file_df.Flap1_pos.astype(float)
-        self.y_values_right_2 = self.file_df.Flap2_pos.astype(float)
-        self.legend_right_1 = "Flap1"
-        self.legend_right_2 = "Flap2"
-        self.label_right = "Position [%]"
-        file_plots.file_plot_two_functions(self)
+        self.y_values_1 = self.file_df.Dee_1_kV.astype(float)
+        self.y_values_2 = self.file_df.Dee_2_kV.astype(float)
+        self.legend_1 = "Dee1"
+        self.legend_2 = "Dee2"
+        self.ylabel = "Voltage [kV]"
+        file_plots.get_plots_two_functions_all(self,0)
+        self.y_values_1 = self.file_df.Flap1_pos.astype(float)
+        self.y_values_2 = self.file_df.Flap2_pos.astype(float)
+        self.legend_1 = "Flap1"
+        self.legend_2 = "Flap2"
+        self.ylabel = "Position [%]"
+        file_plots.get_plots_two_functions_all(self,1)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.draw()
+        self.sc1.show()
 
     def setting_plot_RF_power(self):
+        file_plots.setting_plot(self)
         self.x_values = self.file_df.Time
-        self.y_values_left_1 = self.file_df.RF_fwd_W.astype(float)
-        self.y_values_left_2 = self.file_df.RF_refl_W.astype(float)
-        self.legend_left_1 = "Forwared"
-        self.legend_left_2 = "Reflected"
+        self.y_values_1 = self.file_df.RF_fwd_W.astype(float)
+        self.y_values_2 = self.file_df.RF_refl_W.astype(float)
+        self.legend_1 = "Forwared"
+        self.legend_2 = "Reflected"
         self.label_left = "Power [kW]"
-        self.y_values_right = self.file_df.Phase_load.astype(float)
-        self.legend_right = "Phase load"
-        self.label_right = "Phase load"
-        file_plots.file_plot_two_one_functions(self)
+        file_plots.get_plots_two_functions_all(self,0)
+        self.y_values = self.file_df.Phase_load.astype(float)
+        self.legend = "Phase load"
+        self.label = "Phase load"   
+        file_plots.get_plots_one_functions_all(self,1)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.draw()
+        self.sc1.show()
+
+    def setting_plot_extraction(self):
+        file_plots.setting_plot(self)
+        self.x_values = self.file_df.Time
+        self.y_values_1 = self.file_df.Extr_pos.astype(float)
+        self.y_values_2 = self.file_df.Balance.astype(float)
+        self.legend_1 = "Extr_pos"
+        self.legend_2 = "Balance"
+        self.ylabel = "Position [%]"
+        file_plots.get_plots_two_functions_all(self,0)
+        self.y_values_1 = self.file_df.Coll_l_I.astype(float)
+        self.y_values_2 = self.file_df.Coll_r_I.astype(float)
+        self.legend_1 = "Coll l "
+        self.legend_2 = "Coll r"
+        self.ylabel = "Current [$\mu$A]"
+        file_plots.get_plots_two_functions_all(self,1)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.draw()
+        self.sc1.show()
+
+
+    def setting_target_collimator(self):
+        file_plots.setting_plot(self)
+        self.x_values = self.df_subsystem_beam.Time
+        self.y_values_1 = self.df_subsystem_beam.Target_rel.astype(float)
+        self.y_values_2 = self.df_subsystem_beam.Coll_r_rel.astype(float) + self.df_subsystem_beam.Coll_l_rel.astype(float)
+        self.legend_1 = "Target I/Foil I"
+        self.legend_2 = "Collimators I/Foil I"
+        self.ylabel = "Current [%]"
+        file_plots.get_plots_two_functions_all(self,1)
+        y_values_right = [self.file_df.Foil_I.astype(float),self.file_df.Target_I.astype(float),self.file_df.Coll_l_I.astype(float) + self.file_df.Coll_l_I.astype(float)]
+        y_values_legend = ["Foil","Target","Collimators"]  
+        self.ylabel = "Current [uA]" 
+        self.x_values = self.file_df.Time
+        for i in range(len(y_values_right)):
+            self.y_values = y_values_right[i]
+            self.y_legend = y_values_legend[i]
+            self.get_plots_three_functions_area(0)
+
+
+    def get_plots_three_functions_area(self,pn):
+        self.sc1.axes[pn].fill_between(self.x_values,0,self.y_values,label= self.y_legend)
+        self.sc1.axes[pn].legend(loc='best',ncol=1,fontsize=10)
+        self.sc1.axes[pn].set_xlabel("Time [s]",fontsize=10)
+        self.sc1.axes[pn].set_ylabel(str(self.ylabel),fontsize=10)
+        ticks_to_use = self.x_values[::int(len(self.x_values)/6)]   
+        ticks_to_use_list = self.x_values[::int(len(self.x_values)/6)] 
+        self.sc1.axes[pn].set_xticks(ticks_to_use_list)
+        self.sc1.axes[pn].set_xticklabels(ticks_to_use)
+        #self.sc1.axes[pn].set_yticks(np.arange(min_value,max_value*1.1, step=5))
+        self.sc1.axes[pn].tick_params(labelsize=10)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.axes[pn].tick_params(labelsize=10)
+        self.sc1.draw()
+        self.sc1.show()
 
 
     def setting_plot_magnet(self):
+        file_plots.setting_plot(self)
         self.x_values = self.file_df.Time
-        self.y_values_left = self.file_df.Magnet_I.astype(float)
+        self.y_values = self.file_df.Magnet_I.astype(float)
+        self.ylabel = "Current [A]"
+        self.legend = "Magnet Current"
+        file_plots.get_plots_one_functions_all(self,0)
         self.df_iso = saving_files_summary_list_20200420.get_isochronism(self.file_df)
+        self.x_values = self.df_subsystem_beam.Time
         self.y_values_coll = (self.df_iso.Coll_l_I).astype(float) + (self.df_iso.Coll_r_I).astype(float)
         self.y_values_target = self.df_iso.Target_I
         self.y_values_foil = self.df_iso.Foil_I
         self.y_values_magnet = self.df_iso.Magnet_I
         self.label_left = r"Magnet current [A]"
         self.label_right = "Isochronism"
-        file_plots.file_plot_iso_one_functions(self)
-
-    def setting_plot_extraction(self):
-        ...
-
-    def setting_plot_collimation(self):
-        ...
-
-    def setting_plot_collimation_target(self):
-        ...
+        file_plots.get_plots_tunning(self,self.y_values_coll,self.y_values_target,self.y_values_foil,self.y_values_magnet,1)
+        self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+        self.sc1.draw()
+        self.sc1.show()
+        #file_plots.file_plot_iso_one_functions(self)
  
- 
+
     #FLAGS
 
     def flag_max(self):
@@ -663,7 +712,7 @@ class plotting_data(editing_table,menus_functions):
             lower_limit = 1
         else: 
             uppper_limit = 1.1
-            lower_limit = 0.9
+            lower_limit = 0.95
         if index.row() in [0,1,2,3,4,5]:   
             summary = [labels[index.row()],legend[index.row()],file_name[index.row()],"1"]
             limits = [ylabel[index.row()],uppper_limit,lower_limit]  

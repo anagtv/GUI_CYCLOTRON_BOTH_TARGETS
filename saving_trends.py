@@ -31,7 +31,7 @@ def getting_summary(self):
                 possible_normal.append(file)
         reasons_small_file = []
         for file in (possible_normal):
-            self.fileName_completed = os.path.join(self.fileName_folder, file)
+            self.fileName = os.path.join(self.fileName_folder, file)
             managing_files.file_open(self)
             managing_files.file_open_summary(self)
             # GETTING STADISTIC NUMBERS

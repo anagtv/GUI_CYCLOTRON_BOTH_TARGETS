@@ -188,20 +188,6 @@ def plotting(self,targets_summary,labels,total_legend,colors_plot,columns,total_
     self.sc3.axes.legend(loc='best',ncol=3,fontsize=14)
     self.sc3.fig.savefig((os.path.join(self.output_path,self.file_name_current)))
    
-def selecting_foils(sel_system,target_information):
-    for i in range(len(target_information.index_foil_sorted)):
-        checking_value = (target_information.index_foil_sorted[i] == list(range(min(target_information.index_foil_sorted[i]), max(target_information.index_foil_sorted[i])+1)))
-        if len(target_information.index_foil_sorted) == 1:
-           checking_value =  checking_value[0]
-        if checking_value == True:
-            #print (target_information.index_foil_sorted_position)
-            sel_system.horizontal_mark_plot.append(target_information.index_foil_sorted_position[i][0])
-            sel_system.horizontal_value_plot.append(target_information.unique_index_foil[i])
-        else: 
-           for j in range(len(target_information.index_foil_sorted[i])):
-                sel_system.check_line(target_information.index_foil_sorted[i][j],target_information.unique_index_foil[i],i,target_information.index_foil_sorted_position[i][j])
-           sel_system.horizontal_mark_plot.append(sel_system.verification_position)
-           sel_system.horizontal_value_plot.append(sel_system.valuei)
-           sel_system.counter.append(sel_system.counteri)
+
 
 

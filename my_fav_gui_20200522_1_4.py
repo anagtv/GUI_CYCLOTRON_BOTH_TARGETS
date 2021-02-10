@@ -688,18 +688,10 @@ class plotting_data(editing_table,menus_functions):
         target_information_2 = target_information()
         target_information_1_extra = target_information() 
         target_information_2_extra = target_information()
-        target_information_1.selecting_data_to_plot_reset(self.data_1,self.target_1)
-        target_information_2.selecting_data_to_plot_reset(self.data_2,self.target_2)
-        target_information_1_extra.selecting_data_to_plot_reset(self.data_1,self.target_1)
-        target_information_2_extra.selecting_data_to_plot_reset(self.data_2,self.target_2)
-        target_information_1.foil_research()
-        target_information_1.sortering_data()       
-        target_information_2.foil_research()
-        target_information_2.sortering_data()
-        target_information_1_extra.foil_research()
-        target_information_1_extra.sortering_data()       
-        target_information_2_extra.foil_research()
-        target_information_2_extra.sortering_data()
+        target_information_1.selecting_data_to_plot_reset(self.data_1,self.target_1,self.tfs_input)
+        target_information_2.selecting_data_to_plot_reset(self.data_2,self.target_2,self.tfs_input)
+        target_information_1_extra.selecting_data_to_plot_reset(self.data_1,self.target_1,self.tfs_input)
+        target_information_2_extra.selecting_data_to_plot_reset(self.data_2,self.target_2,self.tfs_input)
         targets_summary = [[target_information_1,target_information_2]]
         targets_summary_extra = [[target_information_1,target_information_2],[target_information_1_extra,target_information_2_extra]]
         #
@@ -756,38 +748,16 @@ class target_information(editing_table):
         self.std_value = []
         self.x_values = []
     
-    def selecting_data_to_plot_reset(self,data,target):
-        self.tfs_target = data
+    def selecting_data_to_plot_reset(self,data,target,total):
+        self.foil_position = total[total.TARGET == str(target)].drop_duplicates(subset="FOIL",keep = "first").index
+        self.foil_values = total[total.TARGET == str(target)].drop_duplicates(subset="FOIL",keep = "first").FOIL
+        self.tfs_target = (data)
         self.tfs_target.reset_index(drop=True, inplace=True)
         self.tfs_target_no_reset = (data)
         self.tfs_unique_target = (self.tfs_target.drop_duplicates(subset="FOIL",keep = "first"))
         self.tfs_unique_target_array = np.array(self.tfs_target.drop_duplicates(subset="FOIL",keep = "first"))
-
-  
-    def foil_research(self):
-            print ("FOIL")
-            print (self.tfs_unique_target)
-            self.unique_index_foil = np.array(self.tfs_unique_target.FOIL)
-            for i in range(len(self.tfs_unique_target.FOIL)):
-               # get all the positions where a given foil is and convert to a list (TARGET 1)
-               self.getting_position(i)
-               # list of positions within the dataframe T1
-               self.index_foil_list.append(self.index_foil)
-               # list of positions in the original dataframe
-               self.index_foil_list_position.append(self.index_foil_position)
-
-    def sortering_data(self):
-        self.unique_index_foil_sorted = [self.tfs_unique_target.FOIL for _,self.tfs_unique_target.FOIL in sorted(zip(self.index_foil_list,self.tfs_unique_target.FOIL))]
-        self.index_foil_sorted = np.sort(self.index_foil_list)
-        self.index_foil_sorted_position = np.sort(self.index_foil_list_position)
-
-    def getting_position(self,i):
-        self.index_foil = (((self.tfs_target.FOIL[self.tfs_target["FOIL"] == self.tfs_unique_target.FOIL.iloc[i]].index))).tolist()
-        self.index_foil_position = (((self.tfs_target_no_reset.FOIL[self.tfs_target["FOIL"] == self.tfs_unique_target.FOIL.iloc[i]].index))).tolist()
-
-
-
-
+        
+ 
 
 
 if __name__ == "__main__":  # had to add this otherwise app crashed

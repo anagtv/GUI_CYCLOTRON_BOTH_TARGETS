@@ -13,36 +13,12 @@ import menus
 
 COLORS = ['#1E90FF','#FF4500','#32CD32',"#6A5ACD","#20B2AA","#00008B","#A52A2A","#228B22","#FF3300","#3366FF","#FF9933"]
 
-class Selection_system:
-   def __init__(self):
-        self.verification = -1
-        self.verification_position = 0
-        self.counter = []
-        self.horizontal_value_plot = []
-        self.horizontal_mark_plot = []
-        self.counter = []
-        self.indexi = 0
-        self.valuei = 0
-        self.counteri = -1
-   def check_line(self,line,value,index,line_position):
-    #cheking if they are stil 
-    if int(line) == int(self.verification + 1) and int(index) == int(self.indexi):
-         self.counteri += 1 
-    else:
-         self.horizontal_mark_plot.append(self.verification_position)
-         self.horizontal_value_plot.append(self.valuei)
-         self.counter.append(self.counteri)
-         self.counteri = 0
-         self.verification_position = line_position 
-    self.valuei = value
-    self.verification = line
-    self.indexi = index
-    return self.verification 
-
 
 def setting_plot_for_individual_target(self,target_number):
     self.maximum_value = (np.max(target_number.max_value + target_number.std_value))
     self.minimum_value = (np.min(target_number.min_value - target_number.std_value))
+    print ("MAXIMUM AND MINIMUM VALUES")
+    print (self.maximum_value,self.minimum_value)
 
 def setting_plot_for_both_targets(self,targets_summary):
     maximum_value = []
@@ -74,7 +50,7 @@ def setting_configuration(self,upper_value,lower_value):
     locs, labels = plt.yticks()
     distance_plot = (self.maximum_value*upper_value-self.minimum_value*lower_value)/(6*len(locs))
     self.set_configuration = distance_plot+self.maximum_value*upper_value
-    self.set_configuration_min = distance_plot+self.minimum_value
+    self.set_configuration_min = distance_plot+self.minimum_value*lower_value
 
 def plot_configuration(self,ylabel_name,upper_value,lower_value):
     fig, ax1 = plt.subplots()
@@ -115,20 +91,20 @@ def getting_stadistic_values(target_number,label):
 
 def generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,labels,limits):  
     if self.target_1_value == "1":
-        indexes = [0]
+        indexes = [1]
     elif self.target_2_value == "1":
-        indexes = [1]  
+        indexes = [0]  
     else:
         indexes = [0,1]
     generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits)
-    sel_system = Selection_system()
-    for j in indexes:
-        selecting_foils(sel_system,targets_summary[0][j])
-    for i in range(len(sel_system.horizontal_mark_plot)): 
-            print ("FOILSSSSSSS")
-            print (sel_system.horizontal_mark_plot)  
-            print (self.set_configuration_min)
-            self.sc3.axes.text(sel_system.horizontal_mark_plot,self.set_configuration_min,"F " + str(sel_system.horizontal_value_plot), fontsize=10,rotation=90)
+    if (self.target_1_value == "1" or self.target_2_value == "1"):
+        for j in indexes:
+            print ("J")
+            print (indexes)
+            for i in range(len(targets_summary[0][j].foil_position)): 
+                self.sc3.axes.text(np.array(targets_summary[0][j].foil_position[i]),self.set_configuration_min,"F " + (str(targets_summary[0][j].foil_values.iloc[i])), fontsize=10,rotation=90)   
+        self.sc3.draw()
+        self.sc3.show()
 
 def plotting_trends(self,targets_summary,labels):
     self.final_legend = []
@@ -218,7 +194,7 @@ def selecting_foils(sel_system,target_information):
         if len(target_information.index_foil_sorted) == 1:
            checking_value =  checking_value[0]
         if checking_value == True:
-            print (target_information.index_foil_sorted_position)
+            #print (target_information.index_foil_sorted_position)
             sel_system.horizontal_mark_plot.append(target_information.index_foil_sorted_position[i][0])
             sel_system.horizontal_value_plot.append(target_information.unique_index_foil[i])
         else: 

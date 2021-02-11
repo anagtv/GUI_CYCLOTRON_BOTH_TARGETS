@@ -91,20 +91,20 @@ def getting_stadistic_values(target_number,label):
     target_number.max_value = max_value
     target_number.min_value = min_value
 
-def generic_plot_no_gap_one_quantitie_with_foil(self,targets_summary,labels,limits):  
+def generic_plot_no_gap_one_quantitie_with_foil(self,labels,limits):  
     if self.target_1_value == "1":
         indexes = [1]
     elif self.target_2_value == "1":
         indexes = [0]  
     else:
         indexes = [0,1]
-    generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits)
+    generic_plot_no_gap_one_quantitie(self,labels,limits)
     if (self.target_1_value == "1" or self.target_2_value == "1"):
         for j in indexes:
             print ("J")
             print (indexes)
-            for i in range(len(targets_summary[0][j].foil_position)): 
-                self.sc3.axes.text(np.array(targets_summary[0][j].foil_position[i]),self.set_configuration_min,"F " + (str(targets_summary[0][j].foil_values.iloc[i])), fontsize=10,rotation=90)   
+            for i in range(len(self.targets_summary[0][j].foil_values)): 
+                self.sc3.axes.text(np.array(self.targets_summary[0][j].foil_values.index[i]),self.set_configuration_min,"F " + (str(self.targets_summary[0][j].foil_values.iloc[i])), fontsize=10,rotation=90)   
         self.sc3.draw()
         self.sc3.show()
 
@@ -134,7 +134,7 @@ def plotting_average_std(self,target_information,legend_i,colors):
     self.sc3.axes.set_xlim([self.min_x-2,self.max_x+2]) 
 
 
-def generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits):
+def generic_plot_no_gap_one_quantitie(self,labels,limits):
     columns = [[labels[0],labels[0]]]
     self.targets = [str(self.target_1),str(self.target_2)]
     self.fmts = ["o","^","v"]
@@ -144,11 +144,12 @@ def generic_plot_no_gap_one_quantitie(self,targets_summary,labels,limits):
     legend1_1 = "AVE " + labels[1] + str(self.target_1)
     legend1_2 = "AVE " + labels[1] + str(self.target_2)
     total_legend = [[legend1_1,legend1_2]]
-    total_targets = [targets_summary[0][0],targets_summary[0][1]]
+    total_targets = [self.targets_summary[0][0],self.targets_summary[0][1]]
+    targets_summary = self.targets_summary
     plotting(self,targets_summary,labels,total_legend,colors_plot,columns,total_targets,limits,"1")
 
 
-def generic_plot_no_gap_two_quantities(self,targets_summary,labels,limits):
+def generic_plot_no_gap_two_quantities(self,labels,limits):
     self.targets = [str(self.target_1),str(self.target_2),str(self.target_1),str(self.target_2)]
     columns = [[labels[0],labels[0]],[labels[1],labels[1]]]
     self.flag_max()
@@ -161,7 +162,8 @@ def generic_plot_no_gap_two_quantities(self,targets_summary,labels,limits):
     legend1_2 = "AVE " + labels[3]
     legend2_2 ='_nolegend_'  
     total_legend = [[legend1_1,legend2_1],[legend1_2,legend2_2]]
-    total_targets = [targets_summary[0][0],targets_summary[0][1],targets_summary[1][0],targets_summary[1][1]]
+    targets_summary = self.targets_summary_extra
+    total_targets = [self.targets_summary_extra[0][0],self.targets_summary_extra[0][1],self.targets_summary_extra[1][0],self.targets_summary_extra[1][1]]
     plotting(self,targets_summary,labels,total_legend,colors_plot,columns,total_targets,limits,"0")
     
 def plotting(self,targets_summary,labels,total_legend,colors_plot,columns,total_targets,limits,value):

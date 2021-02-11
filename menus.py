@@ -87,8 +87,8 @@ def edit_menu(self):
         self.editplottarget4 = QAction('&Remove Target 4',self)
         self.editplottarget1_add = QAction('&Add Target 1',self)
         self.editplottarget4_add = QAction('&Add Target 4',self)
-        self.editplotweek = QAction('&Add Week/Remove days',self)
-        self.editplotday = QAction('&Add day/Remove week',self)
+        #self.editplotweek = QAction('&Add Week/Remove days',self)
+        #self.editplotday = QAction('&Add day/Remove week',self)
         self.editplottime = QAction('&Add day gap',self)
         self.editplottime_remove = QAction('&Remove day gap',self)
 
@@ -102,8 +102,8 @@ def adding_edit_actions(self):
         self.plotMenu.addAction(self.editplottarget4)
         self.plotMenu.addAction(self.editplottarget1_add)
         self.plotMenu.addAction(self.editplottarget4_add)
-        self.plotMenu.addAction(self.editplotweek)
-        self.plotMenu.addAction(self.editplotday)
+        #self.plotMenu.addAction(self.editplotweek)
+        #self.plotMenu.addAction(self.editplotday)
 
 def remove_menu(self):                
         self.removeRow = QAction('&Remove selected row', self)

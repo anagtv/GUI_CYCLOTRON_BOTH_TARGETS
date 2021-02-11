@@ -108,3 +108,19 @@ def get_plots_one_functions_source(self,function_horizontal,function1_vertical,y
     min_value = (float(np.min(function1_vertical)))
     self.sc4.axes[pn].set_xlim([0.95*min(function_horizontal),1.01*max(function_horizontal)])
     self.sc4.axes[pn].tick_params(labelsize=10)
+
+def get_plots_three_functions_area(self,pn):
+    self.sc1.axes[pn].fill_between(self.x_values,0,self.y_values,label= self.y_legend)
+    self.sc1.axes[pn].legend(loc='best',ncol=1,fontsize=10)
+    self.sc1.axes[pn].set_xlabel("Time [s]",fontsize=10)
+    self.sc1.axes[pn].set_ylabel(str(self.ylabel),fontsize=10)
+    ticks_to_use = self.x_values[::int(len(self.x_values)/6)]   
+    ticks_to_use_list = self.x_values[::int(len(self.x_values)/6)] 
+    self.sc1.axes[pn].set_xticks(ticks_to_use_list)
+    self.sc1.axes[pn].set_xticklabels(ticks_to_use)
+    #self.sc1.axes[pn].set_yticks(np.arange(min_value,max_value*1.1, step=5))
+    self.sc1.axes[pn].tick_params(labelsize=10)
+    self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
+    self.sc1.axes[pn].tick_params(labelsize=10)
+    self.sc1.draw()
+    self.sc1.show()

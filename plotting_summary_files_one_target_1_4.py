@@ -32,9 +32,11 @@ def setting_plot_for_both_targets(self,targets_summary):
 
 def setting_minimum_and_maximimum_two_functions(self,targets_summary):
     if self.target_2_value == "1":
-       setting_plot_for_both_targets(self,targets_summary[0:2])
+       targets_summary = [targets_summary[0],targets_summary[2]]
+       setting_plot_for_both_targets(self,targets_summary)
     elif self.target_1_value == "1":
-       setting_plot_for_both_targets(self,targets_summary[2:4])
+       targets_summary = [targets_summary[1],targets_summary[3]]
+       setting_plot_for_both_targets(self,targets_summary)
     else:
         setting_plot_for_both_targets(self,targets_summary)
 

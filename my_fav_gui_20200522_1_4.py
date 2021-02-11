@@ -1,48 +1,25 @@
 import sys
-from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtGui import QIcon, QColor,QStandardItemModel
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QAction, QMessageBox,QTableWidget,QTableWidgetItem,QTabWidget
-from PyQt5.QtWidgets import QCalendarWidget, QFontDialog, QColorDialog, QTextEdit, QFileDialog
-from PyQt5.QtWidgets import QCheckBox, QProgressBar, QComboBox, QLabel, QStyleFactory, QLineEdit, QInputDialog,QScrollArea,QFrame
-import pandas as pd
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from PyQt5 import QtCore, QtWidgets
-from PyQt5 import QtCore, QtWidgets
-from numpy import arange, sin, pi
-#from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-sys.path.append("/Users/anagtv/Desktop/Cyclotron_python/")
-import matplotlib.pyplot as plt
-#import saving_files_summary
-#import saving_files_summary_list
-import plotting_summary_files_one_target_1_4
-import saving_files_summary_list_20200420
 import numpy as np
 import os
 import tfs
-from matplotlib.widgets import CheckButtons
+from datetime import time
+import plotting_summary_files_one_target_1_4
+import saving_files_summary_list_20200420
 import flag_selection
 import file_plots
-#import datetime
-from datetime import time
 import saving_trends
 import managing_files
 import selecting_trends
 import columns_names
 import menus
 import home_tabs
-#import editing_table_class
 from editing_table_class import window
 from editing_table_class import editing_table
 from menus_function_class import menus_functions
 from target_information_class import target_information
-#stheclass = TheClass()
-#import plotting_data_class
-#matplotlib.use('Qt5Agg')
 
 class plotting_data(editing_table,menus_functions):
     def __init__(self):
@@ -235,14 +212,18 @@ class plotting_data(editing_table,menus_functions):
 
     # FUNCTIONS USING A CONNECT 
 
+    def final_plot(self):
+        summary = [columns_names.LABELS[self.indexi],columns_names.LEGEND[self.indexi],columns_names.FILE_NAME[self.indexi],self.max]
+        limits = [columns_names.YLABEL[self.indexi],self.uppper_limit,self.lower_limit] 
+        plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,summary,limits)           
+        
     def handleSelectionChanged_variabletoplot(self):
         #
         index=(self.tablefiles_tab2.selectionModel().currentIndex())
         self.fileName=index.sibling(index.row(),index.column()).data()
         self.tfs_input = tfs.read(os.path.join(self.output_path,columns_names.SUMMARY_FILE_NAMES[index.row()]))
-        self.target_2 = int(np.max(self.tfs_input.drop_duplicates(subset="TARGET",keep = "first").TARGET))
-        self.target_1 = int(np.min(self.tfs_input.drop_duplicates(subset="TARGET",keep = "first").TARGET))
-        self.targets = [self.target_1,self.target_2]
+        self.targets = self.tfs_input.drop_duplicates(subset="TARGET",keep = "first").TARGET
+        self.targets = [int(np.min(self.targets)),int(np.max(self.targets))]
         target_information_1 = target_information() 
         target_information_2 = target_information()
         target_information_1_extra = target_information() 
@@ -255,40 +236,34 @@ class plotting_data(editing_table,menus_functions):
             self.target_information_summary[i].selecting_data_to_plot_reset(self.targets[i],self.tfs_input)
             self.target_information_summary_extra[i].selecting_data_to_plot_reset(self.targets[i],self.tfs_input)       
         self.targets_summary = [self.target_information_summary]
-        self.targets_summary_extra = [self.target_information_summary,self.target_information_summary_extra]
-        #
+        self.targets_summary_extra = [self.target_information_summary,self.target_information_summary_extra]   
         self.flag_max_reset()
-        #
+        self.max = 1
         if index.row() in [3,15]:
             self.flag_max()
         if index.row() == 5:
-            uppper_limit = 1 
-            lower_limit = 1
+            self.uppper_limit = 1 
+            self.lower_limit = 1
         else: 
-            uppper_limit = 1.1
-            lower_limit = 0.95
+            self.uppper_limit = 1.1
+            self.lower_limit = 0.95
         if index.row() in [0,1,2,3,4,5]:   
-            summary = [columns_names.LABELS[index.row()],columns_names.LEGEND[index.row()],columns_names.FILE_NAME[index.row()],"1"]
-            limits = [columns_names.YLABEL[index.row()],uppper_limit,lower_limit]  
+            self.indexi = index.row()
             if index.row() == 3:
                 self.flag_max() 
-                summary = [columns_names.LABELS[index.row()],columns_names.LEGEND[index.row()],columns_names.FILE_NAME[index.row()],"0"]
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,summary,limits)   
-            else:                    
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,summary,limits)
+                self.max = "0"   
+            self.final_plot()               
         elif index.row() in [13,14,15]: 
             self.flag_max()
-            summary = [columns_names.LABELS[index.row()-7],columns_names.LEGEND[index.row()-7],columns_names.FILE_NAME[index.row()-7],"0"]
-            limits = [columns_names.YLABEL[index.row()-7],uppper_limit,lower_limit]     
+            self.indexi = index.row()-7
+            self.max = "0"
             if index.row() == 15:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,summary,limits)
-            else:
-                summary = [columns_names.LABELS[index.row()-7],columns_names.LEGEND[index.row()-7],columns_names.FILE_NAME[index.row()-7],"1"]
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,summary,limits)           
+                self.max = "1"
+            self.final_plot()           
         else: 
-            self.flag_max()           
+            self.flag_max()      
             summary = [columns_names.LABELS_1[index.row()-6],columns_names.LABELS_2[index.row()-6],columns_names.LEGEND_1[index.row()-6],columns_names.LEGEND_2[index.row()-6],columns_names.FILE_NAME_D[index.row()-6],"0"]
-            limits = [columns_names.YLABEL_D[index.row()-6],uppper_limit,lower_limit]
+            limits = [columns_names.YLABEL_D[index.row()-6],self.uppper_limit,self.lower_limit]
             if index.row() in [10,11,12]:
                 plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,summary,limits)
             else:
@@ -296,9 +271,7 @@ class plotting_data(editing_table,menus_functions):
         self.sc3.fig.canvas.mpl_connect('pick_event', self.onpick_trends)    
            
 
-
 if __name__ == "__main__":  # had to add this otherwise app crashed
-
     def run():
         app = QApplication(sys.argv)
         Gui = window()

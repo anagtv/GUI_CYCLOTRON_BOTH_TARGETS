@@ -136,13 +136,13 @@ def plotting_average_std(self,target_information,legend_i,colors):
 
 def generic_plot_no_gap_one_quantitie(self,labels,limits):
     columns = [[labels[0],labels[0]]]
-    self.targets = [str(self.target_1),str(self.target_2)]
+    self.targets = [str(self.targets[0]),str(self.targets[1])]
     self.fmts = ["o","^","v"]
     colors = [COLORS[4],COLORS[8]]
     colors_min = [COLORS[9],COLORS[10]]
     colors_plot = [[colors,colors_min]]
-    legend1_1 = "AVE " + labels[1] + str(self.target_1)
-    legend1_2 = "AVE " + labels[1] + str(self.target_2)
+    legend1_1 = "AVE " + labels[1] + str(self.targets[0])
+    legend1_2 = "AVE " + labels[1] + str(self.targets[1])
     total_legend = [[legend1_1,legend1_2]]
     total_targets = [self.targets_summary[0][0],self.targets_summary[0][1]]
     targets_summary = self.targets_summary
@@ -150,7 +150,7 @@ def generic_plot_no_gap_one_quantitie(self,labels,limits):
 
 
 def generic_plot_no_gap_two_quantities(self,labels,limits):
-    self.targets = [str(self.target_1),str(self.target_2),str(self.target_1),str(self.target_2)]
+    self.targets = [str(self.targets[0]),str(self.targets[1]),str(self.targets[0]),str(self.targets[1])]
     columns = [[labels[0],labels[0]],[labels[1],labels[1]]]
     self.flag_max()
     colors = [COLORS[4],COLORS[4]]
@@ -170,10 +170,10 @@ def plotting(self,targets_summary,labels,total_legend,colors_plot,columns,total_
     self.fmts = ["o","^","v"]
     if self.target_2_value == "1":
         self.rango = [0]
-        self.file_name_current = labels[2][:-4] + "_" + str(self.target_1)
+        self.file_name_current = labels[2][:-4] + "_" + str(self.targets[0])
     elif self.target_1_value == "1":
         self.rango = [1] 
-        self.file_name_current = labels[2][:-4] + "_" + str(self.target_2)
+        self.file_name_current = labels[2][:-4] + "_" + str(self.targets[1])
     else:
         self.rango = [0,1]
         self.file_name_current = labels[2][:-4] 

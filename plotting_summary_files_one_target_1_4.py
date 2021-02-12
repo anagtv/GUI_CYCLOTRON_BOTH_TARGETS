@@ -91,23 +91,28 @@ def getting_stadistic_values(target_number,label):
     target_number.max_value = max_value
     target_number.min_value = min_value
 
-def generic_plot_no_gap_one_quantitie_with_foil(self):  
-    if self.target_1_value == "1":
-        indexes = [1]
-    elif self.target_2_value == "1":
-        indexes = [0]  
-    else:
-        indexes = [0,1]
-    generic_plot_no_gap_one_quantitie(self)
-    if (self.target_1_value == "1" or self.target_2_value == "1"):
-        for j in indexes:
-            print ("J")
-            print (indexes)
-            for i in range(len(self.targets_summary[0][j].foil_values)): 
-                self.sc3.axes.text(np.array(self.targets_summary[0][j].foil_values.index[i]),self.set_configuration_min,"F " + (str(self.targets_summary[0][j].foil_values.iloc[i])), fontsize=10,rotation=90)   
+def selecting_first_foils(self):
+    if self.foils_flag == "1":
+        for j in self.indexes:
+                for i in range(len(self.targets_summary[0][j].foil_values)): 
+                    self.sc3.axes.text(np.array(self.targets_summary[0][j].foil_values.index[i]),self.set_configuration_min,"F " + (str(self.targets_summary[0][j].foil_values.iloc[i])), fontsize=10,rotation=90)   
         self.sc3.draw()
         self.sc3.show()
 
+def generic_plot_no_gap_one_quantitie_with_foil(self):  
+    if self.target_1_value == "1":
+        self.indexes = [1]
+        self.foils_flag = "1"
+    elif self.target_2_value == "1":
+        self.indexes = [0] 
+        self.foils_flag = "1"
+    else:
+        self.indexes = [0,1]
+        self.foils_flag = "0"
+    generic_plot_no_gap_one_quantitie(self)
+    selecting_first_foils(self)
+
+    
 def plotting_trends(self):
     self.final_legend = []
     self.fmts = ["o","^","v"]
@@ -148,8 +153,8 @@ def generic_plot_no_gap_one_quantitie(self):
 
 
 def generic_plot_no_gap_two_quantities(self):
-    self.targets = [str(self.targets[0]),str(self.targets[1]),str(self.targets[0]),str(self.targets[1])]
     self.columns = [[self.labels[0],self.labels[0]],[self.labels[1],self.labels[1]]]
+    self.targets = [str(self.targets[0]),str(self.targets[1]),str(self.targets[0]),str(self.targets[1])]
     self.flag_max()
     colors = [COLORS[4],COLORS[4]]
     colors_2 = [COLORS[8],COLORS[8]]

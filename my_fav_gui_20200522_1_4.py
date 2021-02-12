@@ -177,31 +177,22 @@ class plotting_data(editing_table,menus_functions):
         #file_plots.file_plot_iso_one_functions(self)
 
     def flag_max(self):
-        print ("HEREEEEEEEEE MAX")
         self.max_min_value = "1"
 
     def flag_max_reset(self):
-        print ("HEREEEEE MAX RESET")
         self.max_min_value = "0"
 
     def flag_target1(self):
-        print ("HEREEEEE TARGET 1")
         self.target_1_value = "1"
 
     def flag_target1_add(self):
-        print ("HEREEEEE TARGET 1 (ADD)")
         self.target_1_value = "0"
 
     def flag_target4(self):
-        print ("HEREEEEE TARGET 4")
-        print (self.target_2_value)
         self.target_2_value = "1"
-        print (self.target_2_value)
         
     def flag_target4_add(self):
-        print ("HEREEEEE TARGET 4 (ADD)")
         self.target_2_value = "0"
-
         
     def flag_no_day_gap(self):
         self.flag_no_gap = "1"

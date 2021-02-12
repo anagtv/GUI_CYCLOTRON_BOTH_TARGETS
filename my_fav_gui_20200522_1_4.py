@@ -56,11 +56,11 @@ class plotting_data(editing_table,menus_functions):
         self.y_values = self.file_df.Arc_I.astype(float)
         self.ylabel = "Current [mA]"
         self.legend = "Source Current"
-        file_plots.get_plots_one_functions_all(self,0)
+        file_plots.simple_plot(self,0)
         self.y_values = self.file_df.Arc_V.astype(float)
         self.ylabel = r"Voltage [V]"
         self.legend = "Source Current"
-        file_plots.get_plots_one_functions_all(self,1)
+        file_plots.simple_plot(self,1)
         self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
         self.sc1.draw()
         self.sc1.show()    
@@ -71,11 +71,11 @@ class plotting_data(editing_table,menus_functions):
         self.y_values = self.file_df.Arc_I.astype(float)
         self.ylabel = "Current [mA]"
         self.legend = "Source Current"
-        file_plots.get_plots_one_functions_all(self,0)
+        file_plots.simple_plot(self,0)
         self.y_values = self.file_df.Vacuum_P.astype(float)*1e5
         self.ylabel = r"[$10^{-5}$ mbar]"  
         self.legend = "Vacuum P"  
-        file_plots.get_plots_one_functions_all(self,1)
+        file_plots.simple_plot(self,1)
         self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
         self.sc1.draw()
         self.sc1.show()
@@ -111,7 +111,7 @@ class plotting_data(editing_table,menus_functions):
         self.y_values = self.file_df.Phase_load.astype(float)
         self.legend = "Phase load"
         self.label = "Phase load"   
-        file_plots.get_plots_one_functions_all(self,1)
+        file_plots.simple_plot(self,1)
         self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
         self.sc1.draw()
         self.sc1.show()
@@ -161,7 +161,7 @@ class plotting_data(editing_table,menus_functions):
         self.y_values = self.file_df.Magnet_I.astype(float)
         self.ylabel = "Current [A]"
         self.legend = "Magnet Current"
-        file_plots.get_plots_one_functions_all(self,0)
+        file_plots.simple_plot(self,0)
         self.df_iso = saving_files_summary_list_20200420.get_isochronism(self.file_df)
         self.x_values = self.df_subsystem_beam.Time
         self.y_values_coll = (self.df_iso.Coll_l_I).astype(float) + (self.df_iso.Coll_r_I).astype(float)
@@ -170,7 +170,7 @@ class plotting_data(editing_table,menus_functions):
         self.y_values_magnet = self.df_iso.Magnet_I
         self.label_left = r"Magnet current [A]"
         self.label_right = "Isochronism"
-        file_plots.get_plots_tunning(self,self.y_values_coll,self.y_values_target,self.y_values_foil,self.y_values_magnet,1)
+        file_plots.get_plots_tunning(self,1)
         self.sc1.fig.canvas.mpl_connect('pick_event', self.onpick)             
         self.sc1.draw()
         self.sc1.show()
@@ -212,9 +212,13 @@ class plotting_data(editing_table,menus_functions):
     # FUNCTIONS USING A CONNECT 
 
     def final_plot(self):
-        summary = [columns_names.LABELS[self.indexi],columns_names.LEGEND[self.indexi],columns_names.FILE_NAME[self.indexi],self.max]
-        limits = [columns_names.YLABEL[self.indexi],self.uppper_limit,self.lower_limit] 
-        plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self,summary,limits)           
+        self.limits = [columns_names.YLABEL[self.indexi],self.uppper_limit,self.lower_limit] 
+        self.labels = [columns_names.LABELS[self.indexi]]
+        self.legend = [columns_names.LEGEND[self.indexi]]
+        self.file_name = columns_names.FILE_NAME[self.indexi]
+        self.ylabel = columns_names.YLABEL[self.indexi]
+        self.limits = [self.uppper_limit,self.lower_limit]
+        plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self)           
         
     def handleSelectionChanged_variabletoplot(self):
         #
@@ -260,13 +264,17 @@ class plotting_data(editing_table,menus_functions):
                 self.max = "1"
             self.final_plot()           
         else: 
-            self.flag_max()      
-            summary = [columns_names.LABELS_1[index.row()-6],columns_names.LABELS_2[index.row()-6],columns_names.LEGEND_1[index.row()-6],columns_names.LEGEND_2[index.row()-6],columns_names.FILE_NAME_D[index.row()-6],"0"]
-            limits = [columns_names.YLABEL_D[index.row()-6],self.uppper_limit,self.lower_limit]
+            self.flag_max()  
+            self.labels = [columns_names.LABELS_1[index.row()-6],columns_names.LABELS_2[index.row()-6]]
+            self.legend = [columns_names.LEGEND_1[index.row()-6],columns_names.LEGEND_2[index.row()-6]]
+            self.file_name = columns_names.FILE_NAME_D[index.row()-6]
+            self.max = "0"
+            self.ylabel = columns_names.YLABEL_D[index.row()-6]
+            self.limits = [self.uppper_limit,self.lower_limit]
             if index.row() in [10,11,12]:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,summary,limits)
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self)
             else:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self,summary,limits)
+                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self)
         self.sc3.fig.canvas.mpl_connect('pick_event', self.onpick_trends)    
            
 

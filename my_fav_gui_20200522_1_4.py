@@ -12,7 +12,6 @@ import flag_selection
 import file_plots
 import saving_trends
 import managing_files
-import selecting_trends
 import columns_names
 import menus
 import home_tabs

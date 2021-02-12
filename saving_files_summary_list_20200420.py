@@ -82,15 +82,16 @@ def get_time(excel_data_df,current):
     time = excel_data_df.Time[excel_data_df['Target_I'].astype(float) > float(current)]
     return time
 
-def get_transmission(df_isochronism,probe_current,df_subsystem_source,file,target_number,date_stamp,df_transmission):
-    foil_current_max_isochronism = np.max(df_isochronism.Foil_I)/probe_current
+
+def get_transmission(self):
+    foil_current_max_isochronism = np.max(self.df_isochronism.Foil_I)/self.probe_current
     transmission = foil_current_max_isochronism*100
     transmission_std = float(0)
-    foil_number = np.average(df_subsystem_source.Foil_No)
-    transmission_list = [[np.float(file),date_stamp,target_number,transmission,transmission_std,foil_number]] 
+    foil_number = np.average(self.df_subsystem_source.Foil_No)
+    transmission_list = [[np.float(int(self.file_number)),self.date_stamp,self.target_number[1],transmission,transmission_std,foil_number]] 
     df_transmission_i = pd.DataFrame((transmission_list),columns=columns_names.COLUMNS_TRANSMISSION)      
-    df_transmission = df_transmission.append(df_transmission_i,ignore_index=True)
-    return df_transmission
+    self.df_transmission = self.df_transmission.append(df_transmission_i,ignore_index=True)
+
  
 def get_isochronism(data_df):
     maximum_value = float(max(data_df.Magnet_I))
@@ -217,35 +218,35 @@ def get_vacuum_parameters(excel_data_df,current):
     vacuum_level = excel_data_df.Vacuum_P[excel_data_df['Target_I'].astype(float) > float(current)].astype(float)
     return vacuum_level
 
-def get_pressure_fluctuations(data_df,target_number,va,file,date_stamp,df_pressure_fluctuations):
-    if float(data_df.Target_P[3]) < 100:
+def get_pressure_fluctuations(self,va):
+    if float(self.file_df.Target_P[3]) < 100:
          va += 1
-         values_filling = data_df.Target_P[data_df.Target_P.astype(float) < 100] 
-         initial_index = data_df.Target_P[data_df.Target_P.astype(float) > 100].index[0] 
-         p_values = data_df.Target_P[3:initial_index-1]
+         values_filling = self.file_df.Target_P[self.file_df.Target_P.astype(float) < 100] 
+         initial_index = self.file_df.Target_P[self.file_df.Target_P.astype(float) > 100].index[0] 
+         p_values = self.file_df.Target_P[3:initial_index-1]
          minimal_index = p_values[p_values.astype(float) == np.min(p_values.astype(float))].index[0]
-         initial_pressure = float(data_df.Target_P[minimal_index])
-         final_pressure = float(data_df.Target_P[initial_index-1])
+         initial_pressure = float(self.file_df.Target_P[minimal_index])
+         final_pressure = float(self.file_df.Target_P[initial_index-1])
          relative_change = (final_pressure-initial_pressure)/final_pressure
          time_list = va
-         initial_pressure_fluctuations = ((float(initial_pressure) - float(data_df.Target_P[3]))*100/float(data_df.Target_P[3]))
+         initial_pressure_fluctuations = ((float(initial_pressure) - float(self.file_df.Target_P[3]))*100/float(self.file_df.Target_P[3]))
     else: 
          initial_pressure_fluctuations = 0
          time_list = 0
-    pressure_fluctuations = [[np.float(file),time_list,date_stamp,target_number,initial_pressure_fluctuations]]
+    pressure_fluctuations = [[np.float(self.file_number),time_list,self.date_stamp,self.target_number[1],initial_pressure_fluctuations]]
     df_pressure_fluctuations_i = pd.DataFrame(pressure_fluctuations,columns=columns_names.COLUMNS_FLUCTUATIONS)
-    df_pressure_fluctuations = df_pressure_fluctuations.append(df_pressure_fluctuations_i,ignore_index=True)
-    return df_pressure_fluctuations 
+    self.df_pressure_fluctuations = self.df_pressure_fluctuations.append(df_pressure_fluctuations_i,ignore_index=True)
 
-def get_filling_volume(excel_data_df,target_number,va,file,date_stamp,df_filling_volume):
-    if float(excel_data_df.Target_P[3]) < 100:
+
+def get_filling_volume(self,va):
+    if float(self.file_df.Target_P[3]) < 100:
         va += 1
-        values_filling = excel_data_df.Target_P[excel_data_df.Target_P.astype(float) < 100] 
-        initial_index = excel_data_df.Target_P[excel_data_df.Target_P.astype(float) > 100].index[0] 
-        p_values = excel_data_df.Target_P[3:initial_index-1]
+        values_filling = self.file_df.Target_P[self.file_df.Target_P.astype(float) < 100] 
+        initial_index = self.file_df.Target_P[self.file_df.Target_P.astype(float) > 100].index[0] 
+        p_values = self.file_df.Target_P[3:initial_index-1]
         minimal_index = p_values[p_values.astype(float) == np.min(p_values.astype(float))].index[0]
-        initial_pressure = float(excel_data_df.Target_P[minimal_index])
-        final_pressure = float(excel_data_df.Target_P[initial_index-1])
+        initial_pressure = float(self.file_df.Target_P[minimal_index])
+        final_pressure = float(self.file_df.Target_P[initial_index-1])
         relative_change = (final_pressure-initial_pressure)/final_pressure
         time_list = (va)
         #file = (float(file[:-4]))
@@ -253,11 +254,10 @@ def get_filling_volume(excel_data_df,target_number,va,file,date_stamp,df_filling
     else: 
         relative_change_all = 0
         time_list = 0
-    filling_list = [[np.float(file),time_list,date_stamp,target_number,relative_change_all]]
+    filling_list = [[np.float(self.file_number),time_list,self.date_stamp,self.target_number[1],relative_change_all]]
     df_filling_volume_i = pd.DataFrame(filling_list,columns=columns_names.COLUMNS_FILLING)
-    df_filling_volume = df_filling_volume.append(df_filling_volume_i,ignore_index=True)
-    return df_filling_volume 
-
+    self.df_filling_volume = self.df_filling_volume.append(df_filling_volume_i,ignore_index=True)
+  
 
 def get_statistic_values(value):
     average_value = (np.mean(value))

@@ -57,24 +57,15 @@ def get_target_division(file,target_1,target_2):
     else:
         target_2.selecting_data_to_plot_reset(data_df,target_number,date_stamp,file_number)
 
-def get_summation_per_period(target_1,target_2):
+def get_summation_per_period(target):
     for i in range(len(TIME_PERIOD)):
-        target_1.df_information_month = target_1.df_information[(target_1.df_information['DATE'] > TIME_PERIOD[i][0]) & (target_1.df_information['DATE'] < TIME_PERIOD[i][1])].sort_values(by="FILE").reset_index(drop=True)
-        target_2.df_information_month = target_2.df_information[(target_2.df_information['DATE'] > TIME_PERIOD[i][0]) & (target_2.df_information['DATE'] < TIME_PERIOD[i][1])].sort_values(by="FILE").reset_index(drop=True)    
-    target_1.df_information_month.reset_index(drop=True)
-    target_2.df_information_month.reset_index(drop=True)
-    foil_list_1 = list(target_1.df_information_month.FOIL.drop_duplicates().index)
-    foil_list_1.append(target_1.df_information_month.FOIL.index[-1])
-    foil_list_2 = list(target_1.df_information_month.FOIL.drop_duplicates().index)
-    foil_list_2.append(target_1.df_information_month.FOIL.index[-1])
-    for i in range(len(foil_list_1)-1):
-        print ("FOIL")
-        df_information_foil_1 = target_1.df_information_month[foil_list_1[i]:foil_list_1[i+1]-1]
-        print ("DF")
-        print (df_information_foil_1)
-        print ("SUMMARY")
-        target_1.selecting_foil(df_information_foil_1)
-        #target_2.selecting_foil(df_information_foil)
+        target.df_information_month = target.df_information[(target.df_information['DATE'] > TIME_PERIOD[i][0]) & (target.df_information['DATE'] < TIME_PERIOD[i][1])].sort_values(by="FILE").reset_index(drop=True)
+    target.df_information_month.reset_index(drop=True)    
+    foil_list = list(target.df_information_month.FOIL.drop_duplicates().index)
+    foil_list.append(target.df_information_month.FOIL.index[-1])
+    for i in range(len(foil_list)-1):
+        df_information_foil = target.df_information_month[foil_list[i]:foil_list[i+1]-1]
+        target.selecting_foil(df_information_foil)
 
 def main():
     folder = "/Users/anagtv/Documents/OneDrive/046 - Medical Devices/Mantenimientos ciclotrones/MRS/LOGS/2021"
@@ -83,7 +74,7 @@ def main():
     target_2 = target_cumulative_current(df_information)
     for file in filename_completed:
          get_target_division(file,target_1,target_2)
-    get_summation_per_period(target_1,target_2)
+    get_summation_per_period(target_1)
 
 if __name__ == "__main__":
     main()

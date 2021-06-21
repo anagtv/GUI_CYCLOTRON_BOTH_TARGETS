@@ -9,7 +9,8 @@ import saving_files_summary_list_20200420
 COLUMN_NAMES = ["DATE","FILE","FOIL","TARGET","CURRENT_SOURCE","CURRENT_FOIL","CURRENT_COLL_L","CURRENT_TARGET","CURRENT_COLL_R"]
 df_information = pd.DataFrame(columns=["DATE","FILE","FOIL","TARGET","CURRENT_SOURCE","CURRENT_FOIL","CURRENT_COLL_L","CURRENT_TARGET","CURRENT_COLL_R"])
 TIME_PERIOD = [['2021-01-01','2021-01-31'],['2021-02-01','2021-02-31'],['2021-03-01','2021-03-31']]
-TIME_PERIOD_LABELS = ["january","february","march"]
+LIST_NAMES = ["Arc_I","Foil_I","Coll_l_I","Target_I","Coll_r_I"]
+FOIL_LIST_NAME = ["CURRENT_SOURCE","CURRENT_FOIL","CURRENT_COLL_L","CURRENT_TARGET","CURRENT_COLL_R"]
 class target_cumulative_current:
     def __init__(self,df_information):
         self.df_information = df_information
@@ -23,23 +24,19 @@ class target_cumulative_current:
         self.df_information["CURRENT_TARGET"] = []
         self.df_information["CURRENT_COLL_R"] = []
     def selecting_data_to_plot_reset(self,file_df,target,date_stamp_i,file_number):
-        foil_individual = (getattr(file_df,"Foil_I").astype(float).sum()*3/3600)
-        coll_l_current = (getattr(file_df,"Coll_l_I").astype(float).sum()*3/3600)
-        target_current = (getattr(file_df,"Target_I").astype(float).sum()*3/3600)
-        coll_r_current = (getattr(file_df,"Coll_r_I").astype(float).sum()*3/3600)
-        ion_source_current = (getattr(file_df,"Arc_I").astype(float).sum()*3/3600)
         foil_total = (file_df.Foil_No.iloc[-1])
         target_number_list = (int(target[1]))
-        df_individual = pd.DataFrame([[date_stamp_i,float(file_number),foil_total,target_number_list,ion_source_current,foil_individual,coll_l_current,target_current,coll_r_current]],columns=COLUMN_NAMES)
+        total_list = [date_stamp_i,float(file_number),foil_total,target_number_list]
+        for name in LIST_NAMES: 
+             total_list.append(getattr(file_df,name).astype(float).sum()*3/3600)
+        df_individual = pd.DataFrame([total_list],columns=COLUMN_NAMES)
         self.df_information = self.df_information.append(df_individual)    
-    def selecting_foil(self,file_df):
-        foil_individual = (file_df.CURRENT_FOIL.sum())
-        coll_l_current = (getattr(file_df,"CURRENT_COLL_L").sum())
-        target_current = (getattr(file_df,"CURRENT_TARGET").sum())
-        coll_r_current = (getattr(file_df,"CURRENT_COLL_R").sum())
-        ion_source_current = (getattr(file_df,"CURRENT_SOURCE").sum())
+    def selecting_foil(self,file_df):       
+        total_foil_list = [np.min(file_df.DATE),len(file_df.FILE),np.min(file_df.FOIL),np.min(file_df.TARGET)]
+        for name in FOIL_LIST_NAME:
+            total_foil_list.append(getattr(file_df,name).astype(float).sum())
         foil_total = (file_df.FOIL.iloc[-1])
-        df_individual = pd.DataFrame([[np.min(file_df.DATE),len(file_df.FILE),np.min(file_df.FOIL),np.min(file_df.TARGET),ion_source_current,foil_individual,coll_l_current,target_current,coll_r_current]],columns=COLUMN_NAMES)
+        df_individual = pd.DataFrame([total_foil_list],columns=COLUMN_NAMES)
         self.df_information_foil = self.df_information_foil.append(df_individual) 
 
 #selecting folder to analyze

@@ -48,27 +48,32 @@ class central_region:
        self.transmission_option_b = []
        self.transmission_option_c = []
     def selecting_central_region_data(self,file_df,max_current,max_current_isochronism):
-       vacuum = file_df.Vacuum_P[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)
-       probe_current = file_df.Probe_I.astype(float)[(file_df.Probe_I.astype(float) > 14) & (file_df.Probe_I.astype(float) < 16)]
-       self.source_current_estable.append(np.average(file_df.Arc_I[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float))) 
+       vacuum = getting_estable_values(file_df,max_current,"Vacuum_P")*1e5
+       source_current_estable = getting_estable_values(file_df,max_current,"Arc_I")
+       probe_current = getting_initial_probe_values(file_df,max_current,"Probe_I") 
+       vacuum_probe = getting_initial_probe_values(file_df,max_current,"Vacuum_P")*1e5   
+       gas_flow = getting_estable_values(file_df,max_current,"Arc_I")
        self.source_current.append(file_df.Arc_I.astype(float).sum())      
        self.probe_current_transmission.append(np.average(probe_current))
+       self.probe_vacuum_transmission.append(np.average((vacuum_probe)))
+       self.vacuum_ave.append(np.average(vacuum.astype(float)))
        self.probe_current_transmission_std.append(np.std(probe_current))
-       self.probe_vacuum_transmission.append(np.average((file_df.Vacuum_P.astype(float)[(file_df.Probe_I.astype(float) > 14) & (file_df.Probe_I.astype(float) < 16)])*1e5))
+       self.vacuum_std.append(np.std(vacuum.astype(float)))
+       self.source_current_estable.append(np.average(source_current_estable)) 
        self.transmission_option_a.append(max_current_isochronism/np.average(probe_current))
        self.transmission_option_b.append(max_current_isochronism/np.max(probe_current))
-       self.transmission_option_c.append(np.average(max_current_isochronism/(probe_current)))
-       self.vacuum_ave.append(np.average(vacuum.astype(float)*1e5))
-       self.vacuum_std.append(np.std(vacuum.astype(float)*1e5))
-       self.gas_flow.append(np.max(file_df.Gas_flow[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)))
+       self.transmission_option_c.append(np.average(max_current_isochronism/(probe_current))) 
+       self.gas_flow.append(np.max(gas_flow))
 
 class rf_values: 
     def __init__(self):
         self.rf = []
         self.rf_power = []
     def selecting_central_region_data(self,file_df):
-        self.rf.append(np.max(file_df.Dee_1_kV[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)))
-        self.rf_power.append(np.max(file_df.RF_fwd_W[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)))
+        rf_voltage = getting_estable_values(file_df,max_current,"Dee_1_kV")
+        rf_power = getting_estable_values(file_df,max_current,"RF_fwd_W")
+        self.rf.append(np.max(rf_voltage))
+        self.rf_power.append(np.max(rf_power))
       
   
 class target_parameters:
@@ -83,8 +88,8 @@ class target_parameters:
         self.probe_current_estimated = []
         self.target_to_foil_ratio = []
     def selecting_data(self,file_df,max_current,transmission):
-        target_current = file_df.Target_I[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)
-        foil_current = file_df.Foil_I[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)
+        target_current = getting_estable_values(file_df,max_current,"Target_I")
+        foil_current = getting_estable_values(file_df,max_current,"Foil_I")
         self.target_current.append(np.average(target_current))
         self.foil_current.append(np.average(foil_current))
         self.target_to_foil_ratio.append(np.average(target_current/foil_current))
@@ -95,6 +100,11 @@ class target_parameters:
         self.pressure_final_all.append(pressure_final)
         self.target_volume.append((pressure_final-pressure_initial)/pressure_final)
 
+def getting_estable_values(file_df,max_current,attribute):
+    return getattr(file_df,attribute)[file_df.Target_I.astype(float) > 0.7*(max_current)].astype(float)
+
+def getting_initial_probe_values(file_df,max_current,attribute):
+    return getattr(file_df,attribute).astype(float)[(file_df.Probe_I.astype(float) > 14) & (file_df.Probe_I.astype(float) < 16)] 
 
 
 def main():

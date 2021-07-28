@@ -24,7 +24,6 @@ va = 0
 COLORS = ['#1E90FF','#FF4500','#32CD32',"#6A5ACD","#20B2AA","#00008B","#A52A2A","#228B22"]
 
 
-
 def get_data_tuple(path_file):
     all_parts = []
     logfile = open(path_file,"r")
@@ -119,22 +118,24 @@ def get_isochronism(data_df):
     return df_isochronism
 
 def get_ion_source_performance(data_df):
-    maximum_value = float(max(data_df.Magnet_I))
-    minimum_value = float(min(data_df.Magnet_I))
+    maximum_value = float(max(data_df.Magnet_I.astype(float)))
     maximum_value_str = str(maximum_value)
+    maximum_value_index = data_df.Magnet_I[data_df.Magnet_I == maximum_value_str].index[0]
+    subselection = data_df.iloc[:maximum_value_index]
+    print ("MAGNET")
+    print (maximum_value)
+    print ("SELECTION")
+    print (subselection)
+    minimum_value = float(min(subselection.Magnet_I))
     minimum_value_str = str(minimum_value)
-    intial_values = data_df.Magnet_I[data_df.Magnet_I == minimum_value_str]   
-    if len(intial_values) == 0:
-        minimum_value = int(max(data_df.Magnet_I))
-        minimum_value_str = str(minimum_value)
-    intial_index = data_df.Magnet_I[data_df.Magnet_I == minimum_value_str].index[0] - 3
-    print ("HEREEEE")
-    print (data_df.Probe_I)
-    probe_current = float(data_df.Probe_I[intial_index])
+    #intial_index = subselection.Magnet_I[subselection.Magnet_I == minimum_value_str].index[0] - 3
+    initial_index = data_df[data_df.Probe_I == str(np.max(data_df.Probe_I.astype(float)))].index[0] +2
+    probe_current = float(data_df.Probe_I[initial_index])
+    print (probe_current)
     if probe_current <= 10.0:
-        intial_index = intial_index - 2
-        probe_current = float(data_df.Probe_I[intial_index])
-    ion_source_current = float(data_df.Arc_I[intial_index])   
+        initial_index = initial_index - 2
+        probe_current = float(data_df.Probe_I[initial_index])
+    ion_source_current = float(data_df.Arc_I[initial_index])   
     source_performance = (float(probe_current)/float(ion_source_current))
     source_performance_std = float(0)
     df_column_ion_source_performance = ["Ion_source_I","Probe_stable_I","Source_performance"]
@@ -193,7 +194,12 @@ def get_magnet_parameters(excel_data_df,current):
     return magnet_current
 
 def get_target_pressure(excel_data_df,current):
-    target_pressure = excel_data_df.Target_P[excel_data_df['Target_I'].astype(float) > float(current)].astype(float)
+    target_pressure = excel_data_df.Target_P.astype(float)
+    return target_pressure
+
+def get_target_pressure_irradiation(excel_data_df,current):
+    max_current = 0.9*(np.max(excel_data_df['Target_I'].astype(float)))
+    target_pressure = excel_data_df.Target_P[excel_data_df['Target_I'].astype(float) > float(max_current)].astype(float)
     return target_pressure
 
 def get_target_parameters(excel_data_df):

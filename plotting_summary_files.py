@@ -17,8 +17,6 @@ COLORS = ['#1E90FF','#FF4500','#32CD32',"#6A5ACD","#20B2AA","#00008B","#A52A2A",
 def setting_plot_for_individual_target(self,target_number):
     self.maximum_value = (np.max(target_number.max_value + target_number.std_value))
     self.minimum_value = (np.min(target_number.min_value - target_number.std_value))
-    print ("MAXIMUM AND MINIMUM VALUES")
-    print (self.maximum_value,self.minimum_value)
 
 def setting_plot_for_both_targets(self,targets_summary):
     maximum_value = []
@@ -72,14 +70,18 @@ def setting_minimum_maximum_x(self):
     self.min_x = np.min([np.min(list(self.targets_summary_selected[0].x_values)),np.min(list(self.targets_summary_selected[1].x_values))])
     self.max_x = np.max([np.max(list(self.targets_summary_selected[0].x_values)),np.max(list(self.targets_summary_selected[1].x_values))])
     
-def getting_stadistic_values(target_number,label):
-    column_name_ave = label + "AVE"
-    column_name_max = label + "MAX"
-    column_name_std = label + "STD"
-    column_name_min = label + "MIN"
-    print (target_number)
+def getting_stadistic_values(self,target_number):
+    print (self.column_stat)
+    column_name_ave = self.column_stat + "AVE"
+    column_name_max = self.column_stat + "MAX"
+    column_name_std = self.column_stat + "STD"
+    column_name_min = self.column_stat + "MIN"
     ave_value = (getattr(target_number.tfs_target,column_name_ave))
     std_value = (getattr(target_number.tfs_target,column_name_std))
+    print ("AVERAGE")
+    print (column_name_ave)
+    print (ave_value)
+    print (std_value)
     try:
        max_value = (getattr(target_number.tfs_target,column_name_max))
        min_value = (getattr(target_number.tfs_target,column_name_min))
@@ -117,22 +119,27 @@ def plotting_trends(self):
     self.final_legend = []
     self.fmts = ["o","^","v"]
     for i in range(len(self.targets_summary_selected)):
-        getting_stadistic_values(self.targets_summary_selected[i],self.column[i])
-        self.targets_summary_selected[i].x_values = (self.tfs_input.TARGET[self.tfs_input.TARGET == self.targets[i]].index)
+        print ("BEFORE STATS")
+        self.column_stat = self.column[i]
+        getting_stadistic_values(self,self.targets_summary_selected[i])
+        self.targets_summary_selected[i].x_values = (self.tfs_input.TARGET[self.tfs_input.TARGET == str(self.targets[i])].index)
 
          
 def removing_adding_target_1_4_max_min(self):
-    for j in (self.rango):
-        plotting_average_std(self,self.targets_summary_selected[j],self.total_legend_selected[j],self.colors_plot_selected[0][j])
+    for j in range(len(self.rango)):
+        plotting_average_std(self,self.targets_summary_selected[self.rango[j]],self.total_legend_selected[self.rango_legend[j]],self.colors_plot_selected[0][self.rango[j]])
         if self.max_min_value == "0": 
-            plotting_max_min(self,self.targets_summary_selected[j],"1",self.colors_plot_selected[1][j])  
+            plotting_max_min(self,self.targets_summary_selected[self.rango[j]],self.colors_plot_selected[1][self.rango[j]])  
 
-def plotting_max_min(self,target_information,flag_min,colors):
+def plotting_max_min(self,target_information,colors):
     self.sc3.axes.errorbar(target_information.x_values,target_information.max_value,fmt=self.fmts[1], color=colors, picker=5)
-    if flag_min == "1":
+    print ("AND HEREEE")
+    print (self.max)
+    if self.min == "1":
         self.sc3.axes.errorbar(target_information.x_values,target_information.min_value,fmt=self.fmts[2], color=colors, picker=5)
 
 def plotting_average_std(self,target_information,legend_i,colors):
+    print ("TARGET SUMMARY")
     self.sc3.axes.errorbar(target_information.x_values,target_information.ave_value,yerr=target_information.std_value,fmt=self.fmts[0], color=colors,label= legend_i, picker=5)  
     self.sc3.axes.set_xlim([self.min_x-2,self.max_x+2]) 
 
@@ -173,12 +180,15 @@ def plotting(self,value):
     self.fmts = ["o","^","v"]
     if self.target_2_value == "1":
         self.rango = [0]
+        self.rango_legend = [0] 
         self.file_name_current = self.file_name[:-4] + "_" + str(self.targets[0])
     elif self.target_1_value == "1":
-        self.rango = [1] 
+        self.rango = [1]
+        self.rango_legend = [0] 
         self.file_name_current = self.file_name[:-4] + "_" + str(self.targets[1])
     else:
         self.rango = [0,1]
+        self.rango_legend = [0,1]
         self.file_name_current = self.file_name[:-4] 
     for i in range(len(self.targets_summary)):
         self.column = self.columns[i]

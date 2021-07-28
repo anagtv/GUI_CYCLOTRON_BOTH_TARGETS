@@ -1,42 +1,21 @@
 import os 
 import numpy as np
-import getting_subsystems_data
-import managing_files
+import managing_files_alt
 import tfs
 
-def getting_summary(self):
-        input_path_filtered = []
-        file_path = []
-        for file in os.listdir(self.fileName_folder):
-            print ("INSIDE THE FOLDER")
-            file_path.append(file)
-            input_path_filtered.append(os.path.getsize(os.path.join(self.fileName_folder, file)))
-            input_path_filtered_array = np.array(input_path_filtered)
-        file_path_array = np.array(file_path)
-        file_path_array_max = file_path_array[input_path_filtered_array > 0.1*max(input_path_filtered_array)]
-        possible_normal = []
-        possible_pre_irradiation = []
-        for file in file_path_array_max:
-            file_path = os.path.join(self.fileName_folder, file)
-            [target_number,date_stamp,name,file_number] = getting_subsystems_data.get_headers(file_path)
-            real_values = getting_subsystems_data.get_irradiation_information(file_path)
-            # Get the dataframe from logfile 
-            excel_data_df = getting_subsystems_data.get_data(real_values)
-            target_current = excel_data_df.Target_I.astype(float)
-            pre_irradiation_len = (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 50.0].astype(float))) + (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 25.0].astype(float))) + (len(excel_data_df.Target_I[excel_data_df['Target_I'].astype(float) == 0.0].astype(float)))
-            pre_irradiation_len_relative = (pre_irradiation_len/len(excel_data_df.Target_I.astype(float)))
-            if (pre_irradiation_len_relative) > 0.3:
-                possible_pre_irradiation.append(file)
-            else:
-                possible_normal.append(file)
-        reasons_small_file = []
-        for file in (possible_normal):
-            self.fileName = os.path.join(self.fileName_folder, file)
-            managing_files.file_open(self)
-            managing_files.file_open_summary(self)
+def getting_summary_per_file(self):
+    target_current = self.file_df.Target_I.astype(float)
+    pre_irradiation_len = (len(self.file_df.Target_I[self.file_df['Target_I'].astype(float) == 50.0].astype(float))) + (len(self.file_df.Target_I[self.file_df['Target_I'].astype(float) == 25.0].astype(float))) + (len(self.file_df.Target_I[self.file_df['Target_I'].astype(float) == 0.0].astype(float)))
+    pre_irradiation_len_relative = (pre_irradiation_len/len(self.file_df.Target_I.astype(float)))
+    print ("PRE_IRRADIATION")
+    print (pre_irradiation_len_relative)
+    if (pre_irradiation_len_relative) < 0.3:
+        managing_files_alt.file_open(self)
+        managing_files_alt.file_open_summary(self)
             # GETTING STADISTIC NUMBERS
             # summary voltage 
         
+def getting_summary_final(self):
         self.df_rf = self.df_rf.dropna()
         self.df_extraction = self.df_extraction.dropna()
         self.df_source = self.df_source.dropna()
@@ -72,5 +51,6 @@ def getting_summary(self):
         tfs.write(self.tfs_output_rf, self.df_rf)
         print ("DF VOLUME")
         print (self.df_volume)
+        print (self.df_volume.dropna())
         tfs.write(self.tfs_output_volume, self.df_volume)
         tfs.write(self.tfs_output_trans,self.df_transmission)

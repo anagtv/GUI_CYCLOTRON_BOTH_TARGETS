@@ -11,23 +11,17 @@ from matplotlib.figure import Figure
 from PyQt5 import QtCore, QtWidgets
 from PyQt5 import QtCore, QtWidgets
 from numpy import arange, sin, pi
-#from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 sys.path.append("/Users/anagtv/Desktop/Cyclotron_python/")
 import matplotlib.pyplot as plt
-#import saving_files_summary
-#import saving_files_summary_list
-import plotting_summary_files_one_target_1_4
-import saving_files_summary_list_20200420
 import numpy as np
 import os
 import tfs
 from matplotlib.widgets import CheckButtons
 import flag_selection
 import file_plots
-#import datetime
 from datetime import time
 import saving_trends
 import managing_files
@@ -50,6 +44,6 @@ class target_information(editing_table):
         self.std_value = []
         self.x_values = []
     
-    def selecting_data_to_plot_reset(self,target,total):      
+    def selecting_data_to_plot_reset(self,target,total):    
         self.foil_values = total[total.TARGET == str(target)].drop_duplicates(subset="FOIL",keep = "first").FOIL
         self.tfs_target = total[total.TARGET == str(target)]

@@ -7,6 +7,14 @@ from scipy.optimize import curve_fit
 import saving_files_summary_list_20200420
 import computing_charge_df
 
+def _parse_args():
+    parser = OptionParser()
+    parser.add_option("-i", "--input",
+                    help="Input measurement path",
+                    metavar="INPUT", dest="input_path")
+    options, _ = parser.parse_args()
+    return options.input_path
+
 class cumulative_charge:
     def __init__(self):
         self.target_current = 0
@@ -113,9 +121,6 @@ def main():
     filename_completed = []
     for file in os.listdir(folder):
          filename_completed.append(os.path.join(folder,file))
-    ranges_current = [[24.0,26.0],[49.0,52.0],[79.0,82.0]]
-    #ranges_current = [[80.0,100.0]]
-    df_total_information = pd.DataFrame(columns=["SOURCE","FOIL","TARGET","PROBE","DATE","TARGET_FOIL","TRANSMISSION","VACUUM"])
     target = target_parameters()
     central_region_summary = central_region()
     file_summary = file_information()
@@ -144,8 +149,10 @@ def main():
         cummulative_source.append(df_source_sort.SOURCE_CURRENT_CUMULATIVE[0:i].sum()*3/3600)
     df_source_sort["CUMULATIVE_SOURCE_CURRENT"] = cummulative_source
     print (df_source_sort)
+    tfs.write("source_performance_values.out",df_source_sort)
        
     
 
 if __name__ == "__main__":
-    main()
+    _input_path = _parse_args()
+    main(_input_path)

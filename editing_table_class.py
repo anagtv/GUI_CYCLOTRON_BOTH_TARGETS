@@ -1,4 +1,5 @@
 import sys
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import QIcon, QColor,QStandardItemModel
@@ -8,19 +9,13 @@ from PyQt5.QtWidgets import QCheckBox, QProgressBar, QComboBox, QLabel, QStyleFa
 import pandas as pd
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from PyQt5 import QtCore, QtWidgets
-from PyQt5 import QtCore, QtWidgets
 from numpy import arange, sin, pi
-#from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 sys.path.append("/Users/anagtv/Desktop/Cyclotron_python/")
 import matplotlib.pyplot as plt
-#import saving_files_summary
-#import saving_files_summary_list
-import plotting_summary_files_one_target_1_4
-import saving_files_summary_list_20200420
+import getting_subsystems_data
 import numpy as np
 import os
 import tfs
@@ -46,12 +41,8 @@ class window(QMainWindow):
         super(window, self).__init__()
         self.setWindowTitle("Cyclotron Analysis")
         self.setGeometry(50, 50, 1500, 1000)
-        self.setWindowIcon(QIcon('pic.png'))
+        menus.main_menu(self)
         self.mainMenu = self.menuBar()
-        self.main_widget = QtWidgets.QWidget()
-        self.scrollArea = QtWidgets.QScrollArea()
-        self.scrollArea.setWidget(self.main_widget)
-        self.scrollArea.setWidgetResizable(True)
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
         self.lay = QtWidgets.QVBoxLayout(self.main_widget)   
@@ -92,20 +83,9 @@ class editing_table(window):
     def handleSelectionFile(self):
         index=(self.tableWidget.selectionModel().currentIndex())
         self.fileName = index.sibling(index.row(),18).data()
-        print ("FILE TO PLOT")
-        print (self.fileName)
         self.row_to_plot = index.row()
         managing_files.file_open(self)
         managing_files.file_open_summary(self)
-
-    def folder_analyze(self,values):
-        #When pressed on Cyclotron trends
-        self.question =  QMessageBox()
-        self.question.setText("Select an output folder")
-        self.question.setGeometry(QtCore.QRect(200, 300, 100, 50)) 
-        self.question.setStandardButtons(QMessageBox.Save)
-        self.question.buttonClicked.connect(self.file_output)
-        self.question.show()
 
     def handleSelectionFolder(self):
         index=(self.tableWidget_logfiles.selectionModel().currentIndex())
@@ -123,6 +103,17 @@ class editing_table(window):
             self.fileName_folder = index.sibling(index.row(),1499).data()
             self.fileName_number = self.tableWidget_logfiles.item(index.row(),1).text()
             
+
+    def folder_analyze(self,values):
+        #When pressed on Cyclotron trends
+        self.question =  QMessageBox()
+        self.question.setText("Select an output folder")
+        self.question.setGeometry(QtCore.QRect(200, 300, 100, 50)) 
+        self.question.setStandardButtons(QMessageBox.Save)
+        self.question.buttonClicked.connect(self.file_output)
+        self.question.show()
+
+    
     def onpick(self,event):
          thisline = event.artist
          xdata = thisline.get_xdata()
@@ -130,8 +121,8 @@ class editing_table(window):
          ind = event.ind
          points = tuple(zip(xdata[ind], ydata[ind]))
          self.coordinates_x = xdata[ind][0]
-         [target_current,current] = saving_files_summary_list_20200420.get_target_parameters(self.file_df)
-         foil_number = saving_files_summary_list_20200420.get_foil_number(self.file_df,current) 
+         [target_current,current] = getting_subsystems_data.get_target_parameters(self.file_df)
+         foil_number = getting_subsystems_data.get_foil_number(self.file_df,current) 
          self.table_summary_log.setItem(0,1, QTableWidgetItem(str(self.file_df.Time.iloc[ind[0]])))
          self.table_summary_log.setItem(1,1, QTableWidgetItem(str(self.file_df.Vacuum_P.astype(float).iloc[ind[0]]*1e5)))
          function_names = [self.file_df.Magnet_I,self.file_df.Arc_I,self.file_df.Dee_1_kV,self.file_df.Dee_2_kV,
@@ -154,7 +145,7 @@ class editing_table(window):
          self.coordinates_x = xdata[ind][0]
          COLUMNS_GENERAL = ["CYCLOTRON","DATE","FILE","FOIL"]
          self.tablestatistic_tab2.setItem(0,0, QTableWidgetItem(str("CYCLOTRON")))
-         #self.tablestatistic_tab2.setItem(0,1, QTableWidgetItem(self.name))
+         self.tablestatistic_tab2.setItem(0,1, QTableWidgetItem(str(getattr(self.tfs_input_cyclotron,"CYCLOTRON").iloc[self.coordinates_x])))
          for i in range(1,4,1): 
               self.tablestatistic_tab2.setItem(i,0, QTableWidgetItem(COLUMNS_GENERAL[i]))
               self.tablestatistic_tab2.setItem(i,1,QTableWidgetItem(str(getattr(self.tfs_input,COLUMNS_GENERAL[i]).iloc[self.coordinates_x])))

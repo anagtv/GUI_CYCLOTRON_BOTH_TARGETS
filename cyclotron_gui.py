@@ -6,8 +6,8 @@ import numpy as np
 import os
 import tfs
 from datetime import time
-import plotting_summary_files_one_target_1_4
-import saving_files_summary_list_20200420
+import plotting_summary_files
+import getting_subsystems_data
 import flag_selection
 import file_plots
 import saving_trends
@@ -23,13 +23,11 @@ from target_information_class import target_information
 class plotting_data(editing_table,menus_functions):
     def __init__(self):
         super(plotting_data, self).__init__()
-        menus.plot_source_actions(self)
+        #menus.plot_source_actions(self)
         self.edit_actions()
         self.plot_actions()
  
     def plot_actions(self):
-        self.openPlotI.setShortcut('Ctrl+E')
-        self.openPlotI.setStatusTip('Plot files')
         self.openPlotI.triggered.connect(self.setting_plot_current)
         self.openPlotIV.triggered.connect(self.setting_plot_vacuum)
         self.openPlotRF.triggered.connect(self.setting_plot_RF)
@@ -47,8 +45,8 @@ class plotting_data(editing_table,menus_functions):
         self.editplottarget4_add.triggered.connect(self.flag_target4_add)
         #self.editplotweek.triggered.connect(self.flag_week)
         #self.editplotday.triggered.connect(self.flag_day)
-        self.editplottime.triggered.connect(self.flag_day_gap)
-        self.editplottime_remove.triggered.connect(self.flag_no_day_gap)
+        #self.editplottime.triggered.connect(self.flag_day_gap)
+        #self.editplottime_remove.triggered.connect(self.flag_no_day_gap)
 
     def setting_plot_current(self):
         file_plots.setting_plot(self)
@@ -162,7 +160,7 @@ class plotting_data(editing_table,menus_functions):
         self.ylabel = "Current [A]"
         self.legend = "Magnet Current"
         file_plots.simple_plot(self,0)
-        self.df_iso = saving_files_summary_list_20200420.get_isochronism(self.file_df)
+        self.df_iso = getting_subsystems_data.get_isochronism(self.file_df)
         self.x_values = self.df_subsystem_beam.Time
         self.y_values_coll = (self.df_iso.Coll_l_I).astype(float) + (self.df_iso.Coll_r_I).astype(float)
         self.y_values_target = self.df_iso.Target_I
@@ -194,11 +192,6 @@ class plotting_data(editing_table,menus_functions):
     def flag_target4_add(self):
         self.target_2_value = "0"
         
-    def flag_no_day_gap(self):
-        self.flag_no_gap = "1"
-
-    def flag_day_gap(self):
-        self.flag_no_gap = "0"
 
     # FUNCTIONS USING A CONNECT 
 
@@ -209,13 +202,14 @@ class plotting_data(editing_table,menus_functions):
         self.file_name = columns_names.FILE_NAME[self.indexi]
         self.ylabel = columns_names.YLABEL[self.indexi]
         self.limits = [self.uppper_limit,self.lower_limit]
-        plotting_summary_files_one_target_1_4.generic_plot_no_gap_one_quantitie_with_foil(self)           
+        plotting_summary_files.generic_plot_no_gap_one_quantitie_with_foil(self)           
         
-    def handleSelectionChanged_variabletoplot(self):
+    def selecting_trend_to_plot(self):
         #
         index=(self.tablefiles_tab2.selectionModel().currentIndex())
         self.fileName=index.sibling(index.row(),index.column()).data()
         self.tfs_input = tfs.read(os.path.join(self.output_path,columns_names.SUMMARY_FILE_NAMES[index.row()]))
+        self.tfs_input_cyclotron = tfs.read(os.path.join(self.output_path,"table_summary_extraction.out")) 
         self.targets = self.tfs_input.drop_duplicates(subset="TARGET",keep = "first").TARGET
         self.targets = [int(np.min(self.targets)),int(np.max(self.targets))]
         target_information_1 = target_information() 
@@ -232,27 +226,31 @@ class plotting_data(editing_table,menus_functions):
         self.targets_summary = [self.target_information_summary]
         self.targets_summary_extra = [self.target_information_summary,self.target_information_summary_extra]   
         self.flag_max_reset()
-        self.max = 1
+        self.max = "1"
+        self.min = "1"
+        #self.min = "1"
         if index.row() in [3,15]:
             self.flag_max()
         if index.row() == 5:
-            self.uppper_limit = 1 
-            self.lower_limit = 1
+            self.uppper_limit = 1.01
+            self.lower_limit = 0.99
         else: 
-            self.uppper_limit = 1.1
+            self.uppper_limit = 1.05
             self.lower_limit = 0.95
         if index.row() in [0,1,2,3,4,5]:   
             self.indexi = index.row()
             if index.row() == 3:
                 self.flag_max() 
-                self.max = "0"   
+            if index.row() == 4:
+                self.min = "0"   
             self.final_plot()               
         elif index.row() in [13,14,15]: 
             self.flag_max()
             self.indexi = index.row()-7
-            self.max = "0"
-            if index.row() == 15:
-                self.max = "1"
+            if index.row() == 14:
+                print ("HEREEEEE in 14")
+                self.flag_max_reset()
+                print (self.max_min_value)
             self.final_plot()           
         else: 
             self.flag_max()  
@@ -263,9 +261,9 @@ class plotting_data(editing_table,menus_functions):
             self.ylabel = columns_names.YLABEL_D[index.row()-6]
             self.limits = [self.uppper_limit,self.lower_limit]
             if index.row() in [10,11,12]:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self)
+                plotting_summary_files.generic_plot_no_gap_two_quantities(self)
             else:
-                plotting_summary_files_one_target_1_4.generic_plot_no_gap_two_quantities(self)
+                plotting_summary_files.generic_plot_no_gap_two_quantities(self)
         self.sc3.fig.canvas.mpl_connect('pick_event', self.onpick_trends)    
            
 

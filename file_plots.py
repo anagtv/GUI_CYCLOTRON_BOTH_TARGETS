@@ -1,4 +1,3 @@
-import saving_files_summary_list_20200420
 import getting_subsystems 
 import numpy as np
 import pandas as pd
@@ -13,11 +12,10 @@ def compute_max_min_function(self):
     min_function2 = (float(np.min(self.y_values_right_2)))
     max_value = np.max([max_function1,max_function2])
     min_value = np.max([min_function1,min_function2])
-    ticks_to_use = self.x_values[::int(len(self.x_values)/6)]   
-    ticks_to_use_list = self.x_values[::int(len(self.x_values)/6)] 
+    ticks_to_use = self.x_values[::int(len(self.x_values)/5)]   
+    ticks_to_use_list = self.x_values[::int(len(self.x_values)/5)] 
     self.sc1.axes[pn].set_xticks(ticks_to_use_list)
     self.sc1.axes[pn].set_xticklabels(ticks_to_use)
-
 
 
 def get_plots_tunning(self,pn):
@@ -48,7 +46,6 @@ def get_plots_two_functions_all(self,pn):
         self.y_values = self.y_values_list[i]
         self.legend = self.legends_list[i]
         simple_plot(self,pn)
-
 
 
 def get_plots_three_functions_area(self,pn):

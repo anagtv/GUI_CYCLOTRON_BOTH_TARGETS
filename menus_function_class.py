@@ -17,17 +17,13 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 sys.path.append("/Users/anagtv/Desktop/Cyclotron_python/")
 import matplotlib.pyplot as plt
-#import saving_files_summary
-#import saving_files_summary_list
-import plotting_summary_files_one_target_1_4
-import saving_files_summary_list_20200420
+import getting_subsystems_data
 import numpy as np
 import os
 import tfs
 from matplotlib.widgets import CheckButtons
 import flag_selection
 import file_plots
-#import datetime
 from datetime import time
 import saving_trends
 import managing_files
@@ -35,8 +31,6 @@ import columns_names
 import menus
 import home_tabs
 from editing_table_class import window,editing_table
-#from editing_table_class import edting_table
-#import my_fav_gui_20200522_1_4 
 
 class menus_functions(window):
     def __init__(self):
@@ -47,14 +41,13 @@ class menus_functions(window):
         # STARTING MENUS
         menus.open_menu(self)
         menus.open_menu_actions(self)
-        menus.edit_menu(self)
-        menus.plot_menu(self)
-        menus.plot_menu_source(self)
-        menus.remove_menu(self)
         menus.adding_open_actions(self)
-        menus.adding_edit_actions(self)
-        menus.adding_plot_actions(self)
-        menus.adding_plot_source(self)
+        menus.edit_menu(self)
+        menus.adding_edit_actions(self) 
+        menus.plot_menu(self) 
+        menus.adding_plot_actions(self) 
+        menus.remove_menu(self)
+        #menus.adding_plot_source(self)
 
      
     def file_open_message(self,values):
@@ -75,7 +68,7 @@ class menus_functions(window):
         self.lis_files = []
         self.lis_files_names = []
         for logfile in os.listdir(self.dir_):
-            [self.target_number,self.date_stamp,self.name,self.file_number] = saving_files_summary_list_20200420.get_headers(os.path.join(self.dir_,logfile))
+            [self.target_number,self.date_stamp,self.name,self.file_number] = getting_subsystems_data.get_headers(os.path.join(self.dir_,logfile))
             self.lis_files.append(self.file_number)
         self.lis_files.sort()
         for logfile in self.lis_files:
